@@ -1,0 +1,2567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TRACKEBILITY - NEET PG 2027</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            themeBg: 'var(--bg-color)',
+            themeCard: 'var(--card-color)',
+            themeCardSoft: 'var(--card-soft-color)',
+            themeBorder: 'var(--border-color)',
+            themeAccent: 'var(--accent-color)',
+            themeText: 'var(--text-color)',
+            themeMuted: 'var(--muted-color)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-color: #121827;
+      --card-soft-color: #1e2638;
+      --border-color: #2b3548;
+      --accent-color: #8b5cf6;
+      --text-color: #f8fafc;
+      --muted-color: #94a3b8;
+      --app-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    body.dark-oled {
+      --bg-color: #000000;
+      --card-color: #0a0a0a;
+      --card-soft-color: #141414;
+      --border-color: #222222;
+      --accent-color: #a855f7;
+      --text-color: #ffffff;
+      --muted-color: #a1a1aa;
+    }
+    body.dark-obsidian {
+      --bg-color: #0f172a;
+      --card-color: #1e293b;
+      --card-soft-color: #334155;
+      --border-color: #475569;
+      --accent-color: #6366f1;
+      --text-color: #f8fafc;
+      --muted-color: #94a3b8;
+    }
+    body.dark-burgundy {
+      --bg-color: #140508;
+      --card-color: #20080e;
+      --card-soft-color: #2f0c16;
+      --border-color: #4c1423;
+      --accent-color: #f43f5e;
+      --text-color: #ffe4e6;
+      --muted-color: #fda4af;
+    }
+    body.theme-light {
+      --bg-color: #f8fafc;
+      --card-color: #ffffff;
+      --card-soft-color: #f1f5f9;
+      --border-color: #e2e8f0;
+      --accent-color: #7c3aed;
+      --text-color: #0f172a;
+      --muted-color: #64748b;
+    }
+    body.theme-warm {
+      --bg-color: #faf6f0;
+      --card-color: #ffffff;
+      --card-soft-color: #f3ece2;
+      --border-color: #e6ded3;
+      --accent-color: #d97706;
+      --text-color: #292524;
+      --muted-color: #78716c;
+    }
+    body.font-rounded { font-family: 'Quicksand', system-ui, -apple-system, sans-serif; }
+    body.font-serif { font-family: 'Georgia', 'Cambria', serif; }
+    body.font-inter { font-family: 'Inter', system-ui, sans-serif; }
+    body {
+      font-family: var(--app-font);
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .custom-scroll::-webkit-scrollbar { display: none; }
+    .custom-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="dark-obsidian h-screen overflow-hidden flex flex-col antialiased">
+
+  <!-- TOP APP BAR -->
+  <header class="flex items-center justify-between px-4 pt-3 pb-2 shrink-0 border-b border-themeBorder bg-themeCard/90 backdrop-blur z-30">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-xl bg-themeAccent/20 flex items-center justify-center text-themeAccent font-black text-sm">
+        T
+      </div>
+      <div>
+        <div class="flex items-center gap-1.5">
+          <span class="text-[10px] tracking-widest font-black text-themeMuted uppercase">TRACKEBILITY</span>
+          <span class="text-[10px] text-themeMuted">•</span>
+          <span id="currentDateHeader" class="text-[10px] font-bold text-themeAccent">Today</span>
+        </div>
+        <h1 id="examTitleHeader" class="text-sm font-black tracking-tight cursor-pointer" onclick="openModal('settingsModal')" title="Tap to customize">
+          NEET PG 2027
+        </h1>
+      </div>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <!-- Sync Status Badge -->
+      <div id="syncStatusBadge" class="hidden text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+        <i data-lucide="cloud-check" class="w-3 h-3"></i> <span id="syncBadgeText">Synced</span>
+      </div>
+      <button onclick="openModal('searchModal')" class="p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-themeMuted hover:text-themeText">
+        <i data-lucide="search" class="w-4 h-4"></i>
+      </button>
+      <button onclick="openModal('settingsModal')" class="p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-themeMuted hover:text-themeText">
+        <i data-lucide="settings" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN SCROLLABLE CONTAINER -->
+  <main id="mainContainer" class="flex-1 overflow-y-auto custom-scroll pb-24 p-3.5 space-y-4 max-w-lg mx-auto w-full">
+
+    <!-- ==================== TAB 1: HOME ==================== -->
+    <section id="tab-home" class="space-y-3.5">
+      <!-- Top Target Countdown Card -->
+      <div class="relative overflow-hidden rounded-3xl p-4 bg-gradient-to-br from-indigo-700 via-purple-700 to-pink-700 text-white shadow-lg">
+        <div class="flex justify-between items-start">
+          <div>
+            <h2 id="homeExamTitleDisplay" class="text-xs font-black uppercase tracking-wider text-indigo-200">NEET PG 2027</h2>
+            <div id="homeCountdownDisplay" class="text-2xl font-black mt-0.5 tracking-tight">--d --h --m --s</div>
+          </div>
+          <span id="homeDaysLeftBadge" class="text-xs font-black px-2.5 py-1 bg-white/20 rounded-full backdrop-blur">260 Days Left</span>
+        </div>
+        <div class="mt-3 pt-2.5 border-t border-white/15 flex items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-1.5 truncate">
+            <i data-lucide="quote" class="w-3.5 h-3.5 text-amber-300 shrink-0"></i>
+            <span id="dailyQuoteDisplay" class="italic opacity-90 truncate">"Consistent effort today turns into top ranks tomorrow."</span>
+          </div>
+          <button onclick="editDailyQuote()" class="opacity-75 hover:opacity-100 p-1 shrink-0"><i data-lucide="pencil" class="w-3 h-3"></i></button>
+        </div>
+      </div>
+
+      <!-- Ongoing Task Banner -->
+      <div class="rounded-2xl p-3 bg-themeCard border border-themeBorder flex items-center justify-between shadow-sm">
+        <div class="flex items-center gap-2.5 truncate">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></div>
+          <div class="truncate">
+            <span class="text-[10px] font-black uppercase tracking-wider text-themeMuted block">Ongoing / Next Task</span>
+            <span id="ongoingTaskText" class="text-xs font-bold text-themeText truncate block">No task scheduled right now</span>
+          </div>
+        </div>
+        <button onclick="openAddTaskModal()" class="px-2.5 py-1 rounded-xl bg-themeCardSoft text-themeAccent border border-themeBorder text-[11px] font-bold shrink-0">
+          + Task
+        </button>
+      </div>
+
+      <!-- Core Progress Counters -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="rounded-2xl p-3.5 bg-themeCard border border-themeBorder shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between text-themeMuted text-xs font-bold">
+            <span>STUDY TODAY</span>
+            <i data-lucide="clock" class="w-4 h-4 text-themeAccent"></i>
+          </div>
+          <div class="my-2">
+            <div id="homeTodayStudyTime" class="text-2xl font-black">0h 00m</div>
+            <span class="text-[10px] text-themeMuted">Goal: <span id="homeDailyGoalDisplay">5h 00m</span></span>
+          </div>
+          <div class="w-full bg-themeCardSoft h-1.5 rounded-full overflow-hidden">
+            <div id="homeStudyProgressBar" class="bg-themeAccent h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl p-3.5 bg-themeCard border border-themeBorder shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between text-themeMuted text-xs font-bold">
+            <span>MCQS TODAY</span>
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
+          </div>
+          <div class="my-1.5 flex items-baseline justify-between">
+            <span id="homeTodayMCQCount" class="text-2xl font-black">0</span>
+            <span class="text-[10px] text-themeMuted">Includes GTs</span>
+          </div>
+          <div class="grid grid-cols-5 gap-1">
+            <button onclick="quickAddMCQ(-10)" class="py-1 rounded bg-themeCardSoft hover:bg-rose-500 hover:text-white text-[10px] font-bold transition">-10</button>
+            <button onclick="quickAddMCQ(10)" class="py-1 rounded bg-themeCardSoft hover:bg-themeAccent hover:text-white text-[10px] font-bold transition">+10</button>
+            <button onclick="quickAddMCQ(20)" class="py-1 rounded bg-themeCardSoft hover:bg-themeAccent hover:text-white text-[10px] font-bold transition">+20</button>
+            <button onclick="quickAddMCQ(25)" class="py-1 rounded bg-themeCardSoft hover:bg-themeAccent hover:text-white text-[10px] font-bold transition">+25</button>
+            <button onclick="quickAddMCQ(36)" class="py-1 rounded bg-themeCardSoft hover:bg-themeAccent hover:text-white text-[10px] font-bold transition">+36</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar Strip -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center px-1">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-black uppercase tracking-wider text-themeMuted">Calendar</span>
+            <button onclick="shiftCalendar(-7)" class="p-1 text-themeMuted hover:text-themeText"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+            <button onclick="shiftCalendar(7)" class="p-1 text-themeMuted hover:text-themeText"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="jumpToCalendarToday()" class="text-xs font-bold text-themeAccent">Today</button>
+            <button onclick="openModal('taskHistoryModal')" class="text-xs text-themeMuted hover:text-themeText flex items-center gap-1">
+              <i data-lucide="history" class="w-3.5 h-3.5"></i> Tasks Log
+            </button>
+          </div>
+        </div>
+        <div id="calendarStrip" class="flex gap-2 overflow-x-auto custom-scroll pb-1"></div>
+      </div>
+
+      <!-- Side-by-Side: Daily Tasks + 6am to 3am Timeline -->
+      <div class="rounded-3xl p-3.5 bg-themeCard border border-themeBorder space-y-2.5">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <h3 class="text-sm font-black">Schedule</h3>
+            <span id="tasksDoneCountBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-themeCardSoft text-themeAccent">0/0 done</span>
+          </div>
+          <button onclick="openAddTaskModal()" class="px-2.5 py-1 rounded-xl bg-themeAccent text-white font-bold text-xs flex items-center gap-1">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="space-y-1.5 max-h-72 overflow-y-auto custom-scroll pr-1" id="tasksContainer"></div>
+          <div class="space-y-1 max-h-72 overflow-y-auto custom-scroll border-l border-themeBorder/60 pl-2" id="hourlyTimelineContainer"></div>
+        </div>
+      </div>
+
+      <!-- Shortcuts -->
+      <div>
+        <h4 class="text-xs font-black uppercase tracking-wider text-themeMuted px-1 mb-2">Shortcuts</h4>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="switchTab('focus'); switchFocusSubTab('goals');" class="p-3 rounded-2xl bg-themeCard border border-themeBorder flex flex-col items-center gap-1.5 active:scale-95 transition">
+            <i data-lucide="target" class="w-5 h-5 text-amber-500"></i>
+            <span class="text-xs font-bold">Goals</span>
+          </button>
+          <button onclick="switchTab('focus'); switchFocusSubTab('history');" class="p-3 rounded-2xl bg-themeCard border border-themeBorder flex flex-col items-center gap-1.5 active:scale-95 transition">
+            <i data-lucide="calendar" class="w-5 h-5 text-indigo-500"></i>
+            <span class="text-xs font-bold">Focus History</span>
+          </button>
+          <button onclick="switchTab('tracker'); switchTrackerModule('gt');" class="p-3 rounded-2xl bg-themeCard border border-themeBorder flex flex-col items-center gap-1.5 active:scale-95 transition">
+            <i data-lucide="award" class="w-5 h-5 text-emerald-500"></i>
+            <span class="text-xs font-bold">GT Hub</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: FOCUS ==================== -->
+    <section id="tab-focus" class="hidden space-y-3.5">
+      <div class="flex p-1 bg-themeCardSoft rounded-2xl border border-themeBorder">
+        <button id="focusSubBtn-today" onclick="switchFocusSubTab('today')" class="flex-1 py-1.5 text-xs font-bold rounded-xl bg-themeCard text-themeAccent shadow">Today</button>
+        <button id="focusSubBtn-goals" onclick="switchFocusSubTab('goals')" class="flex-1 py-1.5 text-xs font-bold rounded-xl text-themeMuted">Goals</button>
+        <button id="focusSubBtn-history" onclick="switchFocusSubTab('history')" class="flex-1 py-1.5 text-xs font-bold rounded-xl text-themeMuted">History</button>
+      </div>
+
+      <!-- FOCUS: TODAY -->
+      <div id="focusSub-today" class="space-y-3.5">
+        <div class="rounded-3xl p-5 bg-themeCard border border-themeBorder text-center relative overflow-hidden shadow-sm">
+          <div class="flex justify-center items-center gap-2 mb-3">
+            <button onclick="setFocusType('Study')" id="typeBtn-Study" class="px-3 py-1 rounded-full text-xs font-bold bg-themeAccent text-white transition">Study</button>
+            <button onclick="setFocusType('Revision')" id="typeBtn-Revision" class="px-3 py-1 rounded-full text-xs font-bold bg-themeCardSoft text-themeMuted transition">Revision</button>
+            <div class="flex items-center rounded-full bg-themeCardSoft text-themeMuted px-2 py-0.5 border border-themeBorder">
+              <button onclick="setFocusType('Other')" id="typeBtn-Other" class="text-xs font-bold pr-1">Other</button>
+              <button onclick="renameOtherFocusType()" class="text-themeMuted hover:text-themeText"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <select id="focusSubjectSelect" onchange="populateFocusChapters()" class="p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-semibold text-themeText focus:outline-none"></select>
+            <select id="focusChapterSelect" class="p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-semibold text-themeText focus:outline-none"></select>
+          </div>
+
+          <div class="py-2">
+            <div id="focusTimerDisplay" class="text-5xl font-black font-mono tracking-tight text-themeText">00:00:00</div>
+            <p id="focusModeLabel" class="text-[11px] text-themeMuted mt-1 font-bold">Elapsed: 0 to 40m</p>
+          </div>
+
+          <div class="flex justify-center flex-wrap gap-1.5 my-3">
+            <button onclick="setTimerPreset(20)" class="px-2.5 py-1 rounded-lg bg-themeCardSoft text-[11px] font-bold text-themeMuted hover:text-themeAccent">20m</button>
+            <button onclick="setTimerPreset(30)" class="px-2.5 py-1 rounded-lg bg-themeCardSoft text-[11px] font-bold text-themeMuted hover:text-themeAccent">30m</button>
+            <button onclick="setTimerPreset(40)" class="px-2.5 py-1 rounded-lg bg-themeCardSoft text-[11px] font-bold text-themeMuted hover:text-themeAccent">40m</button>
+            <button onclick="setTimerPreset(60)" class="px-2.5 py-1 rounded-lg bg-themeCardSoft text-[11px] font-bold text-themeMuted hover:text-themeAccent">60m</button>
+            <button onclick="setCustomTimerDuration()" class="px-2.5 py-1 rounded-lg bg-themeCardSoft text-[11px] font-bold text-themeAccent">Custom</button>
+            <button onclick="openModal('pomodoroConfigModal')" id="pomoConfigBtn" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[11px] font-bold">🍅 Pomodoro</button>
+          </div>
+
+          <div class="flex items-center justify-center gap-4 pt-1">
+            <button onclick="resetFocusTimer()" class="p-3.5 rounded-2xl bg-themeCardSoft border border-themeBorder text-themeMuted active:scale-95 transition">
+              <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+            </button>
+            <button id="focusStartBtn" onclick="toggleFocusTimer()" class="px-8 py-3.5 rounded-2xl bg-themeAccent text-white font-bold text-base shadow-lg active:scale-95 transition flex items-center gap-2">
+              <i id="focusPlayIcon" data-lucide="play" class="w-5 h-5 fill-current"></i>
+              <span id="focusPlayText">Start</span>
+            </button>
+            <button onclick="finishAndSaveSession()" class="p-3.5 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 active:scale-95 transition" title="Finish & Save">
+              <i data-lucide="check" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="rounded-3xl p-4 bg-themeCard border border-themeBorder space-y-2.5">
+          <div class="flex justify-between items-center">
+            <h4 class="text-xs font-black uppercase tracking-wider text-themeMuted">Today's Focus Log</h4>
+            <span id="focusTodayCount" class="text-xs font-bold text-themeAccent">0 sessions</span>
+          </div>
+          <div id="focusTodaySessionList" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- FOCUS: GOALS -->
+      <div id="focusSub-goals" class="hidden space-y-3.5">
+        <div class="rounded-3xl p-5 bg-themeCard border border-themeBorder flex justify-between items-center shadow-sm">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">💤</span>
+              <span id="activeStreakNumber" class="text-3xl font-black">0</span>
+            </div>
+            <p id="streakStatusText" class="text-xs font-bold text-themeMuted mt-0.5">No active streak</p>
+            <span class="text-[10px] text-themeAccent font-semibold">Goal: <span id="goalDailyTag">5h / day</span></span>
+          </div>
+          <button onclick="openModal('goalEditModal')" class="px-3 py-1.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold text-themeAccent flex items-center gap-1.5">
+            <i data-lucide="pencil" class="w-3.5 h-3.5"></i> Edit Goal
+          </button>
+        </div>
+
+        <div class="rounded-2xl p-4 bg-themeCard border border-themeBorder">
+          <div class="flex justify-between text-xs font-bold mb-1">
+            <span>Today's Progress</span>
+            <span id="todayProgressGoalText">0min / 5hr</span>
+          </div>
+          <div class="w-full bg-themeCardSoft h-2 rounded-full overflow-hidden">
+            <div id="todayProgressGoalBar" class="bg-themeAccent h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="rounded-3xl p-4 bg-themeCard border border-themeBorder space-y-2">
+          <h4 class="text-xs font-black uppercase tracking-wider text-themeMuted">This Week</h4>
+          <div id="weeklyCirclesContainer" class="flex justify-between items-center py-2 px-1"></div>
+        </div>
+
+        <div class="rounded-3xl p-4 bg-themeCard border border-themeBorder space-y-2.5">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <h4 class="text-xs font-black uppercase tracking-wider text-themeMuted">Monthly Tracking</h4>
+              <button onclick="changeGoalMonth(-1)" class="p-1 text-themeMuted hover:text-themeText"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+              <span id="goalTrackingMonthLabel" class="text-xs font-bold text-themeAccent">Sep 2026</span>
+              <button onclick="changeGoalMonth(1)" class="p-1 text-themeMuted hover:text-themeText"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+            </div>
+            <div class="flex gap-1 text-[10px] text-themeMuted">
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-600"></span>&gt;4h</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-purple-400/40"></span>Light</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-themeCardSoft"></span>&lt;3h</span>
+            </div>
+          </div>
+          <div id="monthlyGridCalendar" class="grid grid-cols-7 gap-1 text-center text-xs pt-1"></div>
+        </div>
+      </div>
+
+      <!-- FOCUS: HISTORY -->
+      <div id="focusSub-history" class="hidden space-y-3">
+        <div class="flex gap-2">
+          <div id="historyMonthList" class="w-20 shrink-0 space-y-1 overflow-y-auto custom-scroll max-h-80"></div>
+          <div class="flex-1 space-y-2">
+            <div class="p-2.5 bg-themeCard rounded-2xl border border-themeBorder">
+              <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-themeMuted pb-1 border-b border-themeBorder/50 mb-1">
+                <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+              </div>
+              <div id="historyMiniCalendar" class="grid grid-cols-7 gap-1 text-center text-[10px]"></div>
+            </div>
+            <div id="historyDayDetailContainer" class="space-y-1.5 max-h-56 overflow-y-auto custom-scroll">
+              <p class="text-[11px] text-themeMuted text-center py-3">Select a date to view study sessions.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: SYLLABUS / REVISION ==================== -->
+    <section id="tab-syllabus" class="hidden space-y-3.5">
+      <div class="flex p-1 bg-themeCardSoft rounded-2xl border border-themeBorder">
+        <button id="sylSubBtn-syllabus" onclick="switchSyllabusSubTab('syllabus')" class="flex-1 py-1.5 text-xs font-bold rounded-xl bg-themeCard text-themeAccent shadow">Syllabus</button>
+        <button id="sylSubBtn-revision" onclick="switchSyllabusSubTab('revision')" class="flex-1 py-1.5 text-xs font-bold rounded-xl text-themeMuted">Revision Hub</button>
+      </div>
+
+      <!-- SYLLABUS TRACKER -->
+      <div id="sylSub-syllabus" class="space-y-3.5">
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="rounded-3xl p-3.5 bg-themeCard border border-themeBorder flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-themeAccent/20 flex items-center justify-center shrink-0 text-xs font-black text-themeAccent">
+              <span id="overallSyllabusPctCircle">0%</span>
+            </div>
+            <div>
+              <span class="text-[10px] font-black uppercase text-themeMuted block">Syllabus</span>
+              <p id="overallSubsRatio" class="text-xs font-bold">19 Subjects</p>
+              <p id="overallChaptersRatio" class="text-[10px] text-themeMuted">0 Completed</p>
+            </div>
+          </div>
+
+          <div class="rounded-3xl p-3 bg-themeCard border border-themeBorder space-y-1 overflow-hidden">
+            <span class="text-[10px] font-black uppercase text-themeMuted block">Subject Progress (19)</span>
+            <div id="subjectMiniProgressBars" class="space-y-1 text-[10px] max-h-16 overflow-y-auto custom-scroll pr-1"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between px-1">
+          <span class="text-xs font-black uppercase tracking-wider text-themeMuted">Subjects & Chapters</span>
+          <div class="flex items-center gap-2">
+            <button onclick="openModal('addSubjectModal')" class="text-xs font-bold text-themeAccent flex items-center gap-1">+ Subject</button>
+            <button onclick="openModal('addChapterModal')" class="text-xs font-bold text-themeAccent flex items-center gap-1">
+              <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Add Chapter
+            </button>
+          </div>
+        </div>
+
+        <div class="flex gap-2.5 items-start">
+          <div id="syllabusSubjectsSidebar" class="w-36 shrink-0 space-y-2 overflow-y-auto custom-scroll max-h-[440px]"></div>
+          <div id="syllabusChaptersList" class="flex-1 space-y-2 overflow-y-auto custom-scroll max-h-[440px]"></div>
+        </div>
+      </div>
+
+      <!-- REVISION HUB -->
+      <div id="sylSub-revision" class="hidden space-y-3.5">
+        <div class="rounded-3xl p-4 bg-themeCard border border-themeBorder flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-black">Spaced Revision Hub</h3>
+            <p class="text-xs text-themeMuted">Intervals: +1d, +3d, +7d, +14d, +30d</p>
+          </div>
+          <button onclick="openModal('scheduleCustomRevisionModal')" class="px-3 py-1.5 rounded-xl bg-themeAccent text-white text-xs font-bold">
+            + Schedule Topic
+          </button>
+        </div>
+
+        <div class="space-y-2">
+          <h4 class="text-xs font-black uppercase tracking-wider text-amber-400 px-1">Due For Review</h4>
+          <div id="revisionQueueContainer" class="space-y-2"></div>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-themeBorder">
+          <h4 class="text-xs font-black uppercase tracking-wider text-emerald-400 px-1">Completed History (With Undo)</h4>
+          <div id="revisionHistoryLogContainer" class="space-y-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: TRACKER ==================== -->
+    <section id="tab-tracker" class="hidden space-y-3.5">
+      <div class="flex gap-2 overflow-x-auto custom-scroll pb-1">
+        <button onclick="switchTrackerModule('mistakes')" id="trkBtn-mistakes" class="px-3.5 py-1.5 rounded-xl bg-themeAccent text-white text-xs font-bold whitespace-nowrap shadow">Mistake Book</button>
+        <button onclick="switchTrackerModule('mcqid')" id="trkBtn-mcqid" class="px-3.5 py-1.5 rounded-xl bg-themeCard border border-themeBorder text-xs font-bold text-themeMuted whitespace-nowrap">MCQ ID Tracker</button>
+        <button onclick="switchTrackerModule('gym')" id="trkBtn-gym" class="px-3.5 py-1.5 rounded-xl bg-themeCard border border-themeBorder text-xs font-bold text-themeMuted whitespace-nowrap">Gym</button>
+        <button onclick="switchTrackerModule('nutrition')" id="trkBtn-nutrition" class="px-3.5 py-1.5 rounded-xl bg-themeCard border border-themeBorder text-xs font-bold text-themeMuted whitespace-nowrap">Protein / kcal</button>
+        <button onclick="switchTrackerModule('gt')" id="trkBtn-gt" class="px-3.5 py-1.5 rounded-xl bg-themeCard border border-themeBorder text-xs font-bold text-themeMuted whitespace-nowrap">GT History</button>
+      </div>
+
+      <!-- 1. MISTAKE BOOK -->
+      <div id="trackerMod-mistakes" class="space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-black">Digital Mistake Book</h3>
+            <p class="text-xs text-themeMuted">Subject-wise remediation notes</p>
+          </div>
+          <button onclick="openModal('mistakeModal')" class="px-3 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-bold flex items-center gap-1 shadow">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Topic
+          </button>
+        </div>
+        <div id="mistakesGroupedContainer" class="space-y-3"></div>
+      </div>
+
+      <!-- 2. MCQ ID TRACKER -->
+      <div id="trackerMod-mcqid" class="hidden space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-black">MCQ ID Repository</h3>
+            <p class="text-xs text-themeMuted">Track question IDs across platforms</p>
+          </div>
+          <button onclick="openModal('mcqIdModal')" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center gap-1 shadow">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i> Log MCQ ID
+          </button>
+        </div>
+        <div id="mcqIdListContainer" class="space-y-2"></div>
+      </div>
+
+      <!-- 3. GYM TRACKER -->
+      <div id="trackerMod-gym" class="hidden space-y-3">
+        <div class="flex justify-between items-center">
+          <h3 class="text-sm font-black">Workout Log</h3>
+          <button onclick="openModal('gymModal')" class="px-3 py-1.5 rounded-xl bg-themeAccent text-white text-xs font-bold">+ Log Day</button>
+        </div>
+        <div id="gymLogTable" class="space-y-2"></div>
+      </div>
+
+      <!-- 4. PROTEIN & CALORIES -->
+      <div id="trackerMod-nutrition" class="hidden space-y-3">
+        <div class="rounded-3xl p-4 bg-themeCard border border-themeBorder flex justify-between items-center">
+          <div>
+            <h4 class="text-xs font-black uppercase text-themeMuted">Nutrition Ledger</h4>
+            <div id="nutritionTotalsDisplay" class="text-xs font-bold text-themeText mt-1">Total: 0g protein • 0 kcal</div>
+            <p id="nutritionAveragesDisplay" class="text-[10px] text-themeMuted">Daily Average: 0g • 0 kcal</p>
+          </div>
+          <button onclick="openModal('nutritionModal')" class="px-3 py-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold text-themeAccent">Log Intake</button>
+        </div>
+        <div id="nutritionTableContainer" class="space-y-2"></div>
+      </div>
+
+      <!-- 5. GT HISTORY -->
+      <div id="trackerMod-gt" class="hidden space-y-3">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-black">Grand Test Ledger</h3>
+            <p class="text-xs text-themeMuted">Scores & accuracy tracking</p>
+          </div>
+          <button onclick="openModal('gtModal')" class="px-3 py-1.5 rounded-xl bg-themeAccent text-white text-xs font-bold">+ Log GT</button>
+        </div>
+        <div id="gtListContainer" class="space-y-2"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: STATISTICS ==================== -->
+    <section id="tab-statistics" class="hidden space-y-3.5">
+      <div class="rounded-3xl p-4 bg-themeCard border border-themeBorder space-y-3">
+        <h3 class="text-sm font-black">Preparation Diagnostics</h3>
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="p-3 rounded-2xl bg-themeCardSoft">
+            <span class="text-themeMuted block text-[10px] font-bold">TOTAL STUDY TIME</span>
+            <span id="statsTotalStudyHours" class="text-xl font-black text-themeAccent mt-0.5 block">0.0h</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-themeCardSoft">
+            <span class="text-themeMuted block text-[10px] font-bold">CUMULATIVE MCQS</span>
+            <span id="statsTotalMCQs" class="text-xl font-black text-emerald-400 mt-0.5 block">0</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-themeCardSoft">
+            <span class="text-themeMuted block text-[10px] font-bold">UNRESOLVED MISTAKES</span>
+            <span id="statsUnresolvedMistakes" class="text-xl font-black text-rose-400 mt-0.5 block">0</span>
+          </div>
+          <div class="p-3 rounded-2xl bg-themeCardSoft">
+            <span class="text-themeMuted block text-[10px] font-bold">GT AVERAGE ACCURACY</span>
+            <span id="statsAvgGTScore" class="text-xl font-black text-amber-400 mt-0.5 block">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-3xl p-4 bg-themeCard border border-themeBorder space-y-2.5">
+        <h4 class="text-xs font-black uppercase tracking-wider text-themeMuted">Subject Time & Chapters Breakdown</h4>
+        <div id="subjectWiseStatsList" class="space-y-2"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PERSISTENT BOTTOM NAVIGATION -->
+  <nav class="fixed bottom-0 left-0 right-0 h-16 bg-themeCard/90 backdrop-blur border-t border-themeBorder px-3 flex items-center justify-around z-30 max-w-lg mx-auto">
+    <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-1 text-themeAccent transition">
+      <i data-lucide="home" class="w-5 h-5"></i>
+      <span class="text-[10px] font-black">HOME</span>
+    </button>
+    <button onclick="switchTab('focus')" id="nav-focus" class="flex flex-col items-center gap-1 text-themeMuted hover:text-themeText transition">
+      <i data-lucide="timer" class="w-5 h-5"></i>
+      <span class="text-[10px] font-black">FOCUS</span>
+    </button>
+    <button onclick="switchTab('syllabus')" id="nav-syllabus" class="flex flex-col items-center gap-1 text-themeMuted hover:text-themeText transition">
+      <i data-lucide="book-open" class="w-5 h-5"></i>
+      <span class="text-[10px] font-black">SYLLABUS</span>
+    </button>
+    <button onclick="switchTab('tracker')" id="nav-tracker" class="flex flex-col items-center gap-1 text-themeMuted hover:text-themeText transition">
+      <i data-lucide="crosshair" class="w-5 h-5"></i>
+      <span class="text-[10px] font-black">TRACKER</span>
+    </button>
+    <button onclick="switchTab('statistics')" id="nav-statistics" class="flex flex-col items-center gap-1 text-themeMuted hover:text-themeText transition">
+      <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+      <span class="text-[10px] font-black">STATS</span>
+    </button>
+  </nav>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- POMODORO SETUP MODAL -->
+  <div id="pomodoroConfigModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black uppercase">Pomodoro Setup</h3>
+        <button onclick="closeModal('pomodoroConfigModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-xs">
+        <div>
+          <label class="text-[10px] font-bold text-themeMuted">Work (min)</label>
+          <input type="number" id="pomoWorkInput" value="25" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-themeMuted">Break (min)</label>
+          <input type="number" id="pomoBreakInput" value="5" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold" />
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-themeMuted">Sessions</label>
+          <input type="number" id="pomoCyclesInput" value="4" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold" />
+        </div>
+      </div>
+      <button onclick="startConfiguredPomodoro()" class="w-full py-3 rounded-2xl bg-amber-500 text-white font-bold text-xs shadow active:scale-95 transition">
+        Start Pomodoro (Reverse Countdown)
+      </button>
+    </div>
+  </div>
+
+  <!-- SCHEDULE CUSTOM REVISION MODAL -->
+  <div id="scheduleCustomRevisionModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black uppercase">Schedule Topic For Revision</h3>
+        <button onclick="closeModal('scheduleCustomRevisionModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="space-y-2">
+        <label class="text-[10px] font-bold text-themeMuted">Select Subject</label>
+        <select id="schedRevSubjectSelect" onchange="populateSchedRevChapters()" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs"></select>
+      </div>
+      <div class="space-y-2">
+        <label class="text-[10px] font-bold text-themeMuted">Select Chapter</label>
+        <select id="schedRevChapterSelect" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs"></select>
+      </div>
+      <div class="space-y-2">
+        <label class="text-[10px] font-bold text-themeMuted">Revision Date</label>
+        <input type="date" id="schedRevDateInput" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      </div>
+      <button onclick="saveScheduledRevision()" class="w-full py-3 rounded-2xl bg-themeAccent text-white font-bold text-xs shadow">
+        Confirm Schedule
+      </button>
+    </div>
+  </div>
+
+  <!-- ADD / LOG MCQ ID MODAL -->
+  <div id="mcqIdModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black uppercase">Log Question ID</h3>
+        <button onclick="closeModal('mcqIdModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <input type="text" id="mcqIdInput" placeholder="MCQ ID (e.g. #14289)" class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+        <select id="mcqPlatformInput" class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs">
+          <option value="Marrow">Marrow</option>
+          <option value="Prepladder">Prepladder</option>
+          <option value="Cerebellum">Cerebellum</option>
+          <option value="Bhatia">Bhatia</option>
+          <option value="PYQ">PYQ Exam</option>
+        </select>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <select id="mcqIdSubjectSelect" class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs"></select>
+        <input type="text" id="mcqIdTopicInput" placeholder="Topic / Concept" class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      </div>
+      <input type="text" id="mcqIdNotesInput" placeholder="Trap / Learning Note (optional)" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      <button onclick="saveMcqIdEntry()" class="w-full py-3 rounded-2xl bg-emerald-600 text-white font-bold text-xs shadow">Save MCQ ID</button>
+    </div>
+  </div>
+
+  <!-- SIMPLIFIED MISTAKE MODAL -->
+  <div id="mistakeModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black uppercase">Record Mistake Topic</h3>
+        <button onclick="closeModal('mistakeModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <select id="mistakeSubject" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText"></select>
+      <input type="text" id="mistakeTopic" placeholder="Topic name (e.g. Bariatric Surgery, Stye)" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText" />
+      <textarea id="mistakeNotes" rows="2" placeholder="Trap concept / Notes" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText"></textarea>
+      <button onclick="saveMistakeSimple()" class="w-full py-3 rounded-2xl bg-rose-600 text-white text-xs font-bold shadow">Save Mistake</button>
+    </div>
+  </div>
+
+  <!-- ADD TASK MODAL -->
+  <div id="taskModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black uppercase">Schedule Task</h3>
+        <button onclick="closeModal('taskModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <input type="text" id="taskInputName" placeholder="Task description (e.g. Watch Surgery Video)" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText focus:outline-none" />
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[10px] font-bold text-themeMuted">Date</label>
+          <input type="date" id="taskInputDate" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText focus:outline-none" />
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-themeMuted">Start Time</label>
+          <input type="time" id="taskInputTime" value="09:00" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText focus:outline-none" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div>
+          <label class="text-[10px] font-bold text-themeMuted">Duration (Mins)</label>
+          <input type="number" id="taskInputDuration" value="45" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText focus:outline-none" />
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-themeMuted">Subject Link</label>
+          <select id="taskInputSubject" onchange="populateTaskChapters()" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText focus:outline-none"></select>
+        </div>
+      </div>
+      <div>
+        <label class="text-[10px] font-bold text-themeMuted">Chapter Link</label>
+        <select id="taskInputChapter" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText focus:outline-none"></select>
+      </div>
+      <button onclick="saveTask()" class="w-full py-3 rounded-2xl bg-themeAccent text-white text-xs font-bold shadow active:scale-95 transition">Save Task</button>
+    </div>
+  </div>
+
+  <!-- TASK ACTIONS MODAL -->
+  <div id="taskActionsModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 id="taskActionTitle" class="text-sm font-black truncate">Task Actions</h3>
+        <button onclick="closeModal('taskActionsModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+        <button onclick="shiftActiveTask(1)" class="p-3 rounded-xl bg-themeCardSoft border border-themeBorder flex items-center justify-center gap-1.5">
+          ➡️ Shift Tomorrow
+        </button>
+        <button onclick="shiftActiveTaskPrompt()" class="p-3 rounded-xl bg-themeCardSoft border border-themeBorder flex items-center justify-center gap-1.5">
+          📅 Choose Date
+        </button>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="editActiveTaskDuration()" class="flex-1 py-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold">Edit Time / Dur</button>
+        <button onclick="deleteActiveTask()" class="py-2.5 px-4 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLETED TASK HISTORY MODAL -->
+  <div id="taskHistoryModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3 max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black">Completed Tasks Ledger</h3>
+        <button onclick="closeModal('taskHistoryModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="completedTasksMemoryList" class="space-y-2 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- GOALS EDIT MODAL -->
+  <div id="goalEditModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black">Weekly Goal Pattern</h3>
+        <button onclick="closeModal('goalEditModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[10px] font-bold text-themeMuted">Hours</label>
+            <input type="number" id="goalInputHours" value="5" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold" />
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-themeMuted">Minutes</label>
+            <input type="number" id="goalInputMinutes" value="0" class="w-full p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold" />
+          </div>
+        </div>
+        <div class="p-3 rounded-2xl bg-themeCardSoft border border-themeBorder space-y-2">
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="text-xs font-bold block">Enable Recovery Day</span>
+              <span class="text-[10px] text-themeMuted">Lighter study day to prevent burnout</span>
+            </div>
+            <input type="checkbox" id="recoveryDayToggle" class="w-4 h-4 rounded text-themeAccent" />
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <select id="recoveryDaySelect" class="p-2 rounded-xl bg-themeCard border border-themeBorder text-xs">
+              <option value="0">Sunday</option>
+              <option value="1">Monday</option>
+              <option value="2">Tuesday</option>
+              <option value="3">Wednesday</option>
+              <option value="4">Thursday</option>
+              <option value="5">Friday</option>
+              <option value="6">Saturday</option>
+            </select>
+            <select id="recoveryTypeSelect" class="p-2 rounded-xl bg-themeCard border border-themeBorder text-xs">
+              <option value="rest">Rest Day (0 min)</option>
+              <option value="light">Light Study (2h)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="saveGoalPattern()" class="w-full py-3 rounded-2xl bg-themeAccent text-white text-xs font-bold shadow">Save Pattern</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD SUBJECT MODAL -->
+  <div id="addSubjectModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black">Add Subject</h3>
+        <button onclick="closeModal('addSubjectModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <input type="text" id="newSubjectName" placeholder="Subject Name" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText" />
+      <div class="flex items-center gap-3">
+        <input type="color" id="newSubjectColor" value="#8b5cf6" class="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0" />
+        <span class="text-xs text-themeMuted">Color Accent</span>
+      </div>
+      <button onclick="saveNewSubject()" class="w-full py-3 rounded-2xl bg-themeAccent text-white text-xs font-bold shadow">Save Subject</button>
+    </div>
+  </div>
+
+  <!-- ADD CHAPTER MODAL -->
+  <div id="addChapterModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black">Add Chapter</h3>
+        <button onclick="closeModal('addChapterModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <select id="addChapterSubjectSelect" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText"></select>
+      <input type="text" id="newChapterName" placeholder="Chapter Title" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText" />
+      <input type="text" id="newChapterNotes" placeholder="Short Notes (e.g. signs, scoring)" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText" />
+      <button onclick="saveNewChapter()" class="w-full py-3 rounded-2xl bg-themeAccent text-white text-xs font-bold shadow">Save Chapter</button>
+    </div>
+  </div>
+
+  <!-- ADD GT MODAL -->
+  <div id="gtModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black">Record Grand Test (GT)</h3>
+        <button onclick="closeModal('gtModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <input type="text" id="gtName" placeholder="GT Name (e.g. National Mock GT #8)" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      <div class="grid grid-cols-2 gap-2">
+        <input type="text" id="gtPlatform" placeholder="Platform (Marrow/Prepladder)" class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+        <input type="date" id="gtDate" class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      </div>
+      <div class="grid grid-cols-3 gap-2">
+        <input type="number" id="gtScore" placeholder="Score" class="p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+        <input type="number" id="gtTotal" value="200" placeholder="Total Qs" class="p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+        <input type="number" id="gtAttempted" value="200" placeholder="Attempted" class="p-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      </div>
+      <button onclick="saveGT()" class="w-full py-3 rounded-2xl bg-themeAccent text-white text-xs font-bold shadow">Save GT & Sync MCQs</button>
+    </div>
+  </div>
+
+  <!-- GYM MODAL -->
+  <div id="gymModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black">Log Workout</h3>
+        <button onclick="closeModal('gymModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <input type="date" id="gymDateInput" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      <input type="text" id="gymSplitInput" placeholder="Split (e.g. Back + Biceps + Cardio, Legs)" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      <input type="number" id="gymWeightInput" placeholder="Body Weight kg (optional)" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      <button onclick="saveGymLog()" class="w-full py-3 rounded-2xl bg-themeAccent text-white text-xs font-bold shadow">Save Workout</button>
+    </div>
+  </div>
+
+  <!-- NUTRITION MODAL -->
+  <div id="nutritionModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black">Log Nutrition</h3>
+        <button onclick="closeModal('nutritionModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <input type="date" id="nutritionDateInput" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      <div class="grid grid-cols-2 gap-2">
+        <input type="number" id="nutritionProteinInput" placeholder="Protein (g) e.g. 106" class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+        <input type="number" id="nutritionKcalInput" placeholder="Calories (kcal) e.g. 2000" class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs" />
+      </div>
+      <button onclick="saveNutritionLog()" class="w-full py-3 rounded-2xl bg-themeAccent text-white text-xs font-bold shadow">Save Nutrition</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 border border-themeBorder space-y-4 max-h-[85vh] overflow-y-auto">
+      <div class="flex justify-between items-center">
+        <h3 class="text-sm font-black">Settings & Account</h3>
+        <button onclick="closeModal('settingsModal')" class="text-themeMuted"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <!-- Cloud Sync Account Card -->
+      <div class="p-3.5 rounded-2xl bg-themeCardSoft border border-themeBorder space-y-2.5">
+        <span class="text-[10px] font-black uppercase text-themeMuted block">Cloud Sync Account</span>
+        <div id="loggedOutSection" class="space-y-2">
+          <p class="text-xs text-themeMuted">Sign in to save and sync your study schedules across devices.</p>
+          <button onclick="loginWithGoogle()" class="w-full py-2.5 rounded-xl bg-white text-black font-bold text-xs flex items-center justify-center gap-2 shadow active:scale-95 transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            Continue with Google
+          </button>
+        </div>
+        <div id="loggedInSection" class="hidden space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span id="userAccountEmailDisplay" class="font-bold text-themeText truncate">doctor@gmail.com</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">Logged In</span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="syncToCloud(true)" class="flex-1 py-2 rounded-xl bg-themeAccent text-white text-xs font-bold">Sync Now</button>
+            <button onclick="logoutUser()" class="py-2 px-3 rounded-xl bg-rose-500/20 text-rose-400 text-xs font-bold">Logout</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multiple Dark Mode Themes -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-themeMuted">Dark Mode & Themes</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="setTheme('dark-oled')" class="py-2 text-xs font-bold rounded-xl border border-themeBorder bg-black text-white">OLED Black</button>
+          <button onclick="setTheme('dark-obsidian')" class="py-2 text-xs font-bold rounded-xl border border-themeBorder bg-[#0f172a] text-slate-100">Obsidian Slate</button>
+          <button onclick="setTheme('dark-burgundy')" class="py-2 text-xs font-bold rounded-xl border border-themeBorder bg-[#140508] text-rose-200">Burgundy</button>
+          <button onclick="setTheme('theme-light')" class="py-2 text-xs font-bold rounded-xl border border-themeBorder bg-white text-black">Light Mode</button>
+          <button onclick="setTheme('theme-warm')" class="py-2 text-xs font-bold rounded-xl border border-themeBorder bg-[#faf6f0] text-amber-900">Beige Warm</button>
+        </div>
+      </div>
+
+      <!-- Font Styles -->
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-themeMuted">Typography / Font Style</label>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="setFontStyle('')" class="py-2 text-xs font-bold rounded-xl border border-themeBorder bg-themeCardSoft">System Clean</button>
+          <button onclick="setFontStyle('font-inter')" class="py-2 text-xs font-bold rounded-xl border border-themeBorder bg-themeCardSoft">Inter Sans</button>
+          <button onclick="setFontStyle('font-rounded')" class="py-2 text-xs font-bold rounded-xl border border-themeBorder bg-themeCardSoft">Quicksand Rounded</button>
+          <button onclick="setFontStyle('font-serif')" class="py-2 text-xs font-bold rounded-xl border border-themeBorder bg-themeCardSoft">Editorial Serif</button>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-themeMuted">Exam Title & Target Date</label>
+        <input type="text" id="settingsExamTitleInput" placeholder="Exam Name" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText" />
+        <input type="date" id="settingsExamDateInput" class="w-full p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder text-xs text-themeText" />
+      </div>
+
+      <div class="space-y-2 pt-2 border-t border-themeBorder">
+        <label class="text-xs font-bold text-themeMuted">Data Backup / Restore</label>
+        <div class="flex gap-2">
+          <button onclick="exportDataBackup()" class="flex-1 py-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold">Export JSON</button>
+          <button onclick="document.getElementById('importFileInput').click()" class="flex-1 py-2 rounded-xl bg-themeCardSoft border border-themeBorder text-xs font-bold">Restore JSON</button>
+          <input type="file" id="importFileInput" onchange="importDataBackup(event)" class="hidden" accept=".json" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH MODAL -->
+  <div id="searchModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-start justify-center p-4">
+    <div class="bg-themeCard w-full max-w-md rounded-3xl p-5 border border-themeBorder space-y-3 mt-12 max-h-[80vh] overflow-y-auto">
+      <div class="flex items-center gap-2 pb-2 border-b border-themeBorder">
+        <i data-lucide="search" class="w-4 h-4 text-themeMuted"></i>
+        <input type="text" id="globalSearchInput" oninput="runGlobalSearch(this.value)" placeholder="Search subjects, chapters, mistakes, MCQ IDs..." class="w-full bg-transparent text-xs text-themeText focus:outline-none font-medium" />
+        <button onclick="closeModal('searchModal')" class="text-themeMuted"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <div id="globalSearchResults" class="space-y-2 pt-1 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- ==================== JAVASCRIPT ENGINE & SUPABASE ==================== -->
+  <script>
+    const STORAGE_KEY = 'TRACKEBILITY_NEET_PG_2027_V4';
+
+    // SUPABASE CONFIGURATION
+    const SUPABASE_URL = 'https://ibdjdqrerwnrytwzmbae.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliZGpkcXJlcnducnl0d3ptYmFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0NTc2NjAsImV4cCI6MjEwNTAzMzY2MH0.Gxz0DSc3oP9XCxLYnijNl4sQMggtEmYTJ6mB2Khfg_s';
+    let supabaseClient = null;
+
+    try {
+      if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true
+          }
+        });
+      }
+    } catch(err) {
+      console.error('Supabase init error:', err);
+    }
+
+    const defaultCanonical19 = [
+      { id: 'sub_1', name: 'Surgery', symbol: 'SU', color: '#84cc16', chapters: [
+        { id: 'ch_su_1', name: 'Bariatric Surgery', notes: 'GSC & MESS scoring', status: 'R', totalFocusSeconds: 7200, lastStudied: '2026-09-10', nextRevisionDate: '2026-09-15', revStage: 1 },
+        { id: 'ch_su_2', name: 'Mediastinal Mass', notes: 'Anterior vs posterior', status: 'MCQ', totalFocusSeconds: 3600, lastStudied: '2026-09-12', nextRevisionDate: null, revStage: 0 },
+        { id: 'ch_su_3', name: 'Instruments & Sutures', notes: 'Needle types', status: 'DONE', totalFocusSeconds: 5400, lastStudied: '2026-09-14', nextRevisionDate: '2026-09-20', revStage: 2 },
+        { id: 'ch_su_4', name: 'RP Trauma & Shock', notes: 'Zone 1-3 exploration', status: 'R', totalFocusSeconds: 9000, lastStudied: '2026-09-08', nextRevisionDate: '2026-09-15', revStage: 1 }
+      ]},
+      { id: 'sub_2', name: 'Ophthalmology', symbol: 'OP', color: '#06b6d4', chapters: [
+        { id: 'ch_op_1', name: 'Stye & Chalazion', notes: 'Zeis vs Meibomian', status: 'DONE', totalFocusSeconds: 3600, lastStudied: '2026-09-13', nextRevisionDate: '2026-09-21', revStage: 2 },
+        { id: 'ch_op_2', name: 'C.M. Edema (CME)', notes: 'Flower petal pattern', status: 'MCQ', totalFocusSeconds: 1800, lastStudied: null, nextRevisionDate: null, revStage: 0 },
+        { id: 'ch_op_3', name: 'Astigmatism', notes: 'Rule vs against rule', status: 'BLANK', totalFocusSeconds: 0, lastStudied: null, nextRevisionDate: null, revStage: 0 }
+      ]},
+      { id: 'sub_3', name: 'Orthopaedics', symbol: 'OR', color: '#f97316', chapters: [
+        { id: 'ch_or_1', name: 'Bone Tumours', notes: 'Sunburst vs Codman', status: 'R', totalFocusSeconds: 7200, lastStudied: '2026-09-11', nextRevisionDate: '2026-09-15', revStage: 1 },
+        { id: 'ch_or_2', name: 'Fractures & Dislocations', notes: 'Galeazzi vs Monteggia', status: 'DONE', totalFocusSeconds: 4200, lastStudied: '2026-09-09', nextRevisionDate: null, revStage: 0 }
+      ]},
+      { id: 'sub_4', name: 'Anatomy', symbol: 'AN', color: '#f43f5e', chapters: [
+        { id: 'ch_an_1', name: 'Brachial Plexus & Upper Limb', notes: 'Erb vs Klumpke', status: 'BLANK', totalFocusSeconds: 0, lastStudied: null, nextRevisionDate: null, revStage: 0 },
+        { id: 'ch_an_2', name: 'Cranial Nerves', notes: 'Exits & pathways', status: 'BLANK', totalFocusSeconds: 0, lastStudied: null, nextRevisionDate: null, revStage: 0 }
+      ]},
+      { id: 'sub_5', name: 'Physiology', symbol: 'PY', color: '#ec4899', chapters: [] },
+      { id: 'sub_6', name: 'Biochemistry', symbol: 'BC', color: '#d946ef', chapters: [
+        { id: 'ch_bc_1', name: 'Glycolysis & Krebs Cycle', notes: 'Rate limiting enzymes', status: 'DONE', totalFocusSeconds: 3600, lastStudied: '2026-09-05', nextRevisionDate: null, revStage: 0 }
+      ]},
+      { id: 'sub_7', name: 'Pharmacology', symbol: 'PH', color: '#a855f7', chapters: [] },
+      { id: 'sub_8', name: 'Pathology', symbol: 'PA', color: '#8b5cf6', chapters: [] },
+      { id: 'sub_9', name: 'Microbiology', symbol: 'MB', color: '#6366f1', chapters: [] },
+      { id: 'sub_10', name: 'Forensic Medicine', symbol: 'FM', color: '#3b82f6', chapters: [] },
+      { id: 'sub_11', name: 'Community Medicine', symbol: 'CM', color: '#0ea5e9', chapters: [] },
+      { id: 'sub_12', name: 'ENT', symbol: 'EN', color: '#14b8a6', chapters: [] },
+      { id: 'sub_13', name: 'Medicine', symbol: 'ME', color: '#10b981', chapters: [
+        { id: 'ch_me_1', name: 'Cardiology ECG', notes: 'Murmurs', status: 'DONE', totalFocusSeconds: 10800, lastStudied: '2026-09-14', nextRevisionDate: null, revStage: 0 }
+      ]},
+      { id: 'sub_14', name: 'Obstetrics & Gynaecology', symbol: 'OB', color: '#eab308', chapters: [] },
+      { id: 'sub_15', name: 'Pediatrics', symbol: 'PE', color: '#f59e0b', chapters: [] },
+      { id: 'sub_16', name: 'Dermatology', symbol: 'DE', color: '#ef4444', chapters: [] },
+      { id: 'sub_17', name: 'Psychiatry', symbol: 'PS', color: '#d946ef', chapters: [] },
+      { id: 'sub_18', name: 'Radiology', symbol: 'RD', color: '#6366f1', chapters: [] },
+      { id: 'sub_19', name: 'Anaesthesia', symbol: 'AN', color: '#14b8a6', chapters: [] }
+    ];
+
+    function getTodayYMD() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    let appState = {
+      examTitle: 'NEET PG 2027',
+      examDate: '2027-03-14',
+      quote: 'Consistency beats intensity every single time.',
+      dailyFocusGoalMinutes: 300,
+      recoveryDayEnabled: false,
+      recoveryDay: 0,
+      recoveryType: 'rest',
+      otherTypeName: 'Notes / GT Analysis',
+      streak: 7,
+      theme: 'dark-obsidian',
+      fontStyle: '',
+      goalMonthOffset: 0,
+      subjects: defaultCanonical19,
+      tasks: [
+        { id: 'tsk_1', name: 'Surgery Video: Trauma Management', date: getTodayYMD(), time: '09:00', duration: 120, completed: false, subjectId: 'sub_1', chapterId: 'ch_su_4' },
+        { id: 'tsk_2', name: 'Trauma MCQ (36)', date: getTodayYMD(), time: '11:30', duration: 40, completed: true, subjectId: 'sub_1', chapterId: 'ch_su_4' },
+        { id: 'tsk_3', name: 'PYQ Ortho INICET', date: getTodayYMD(), time: '14:00', duration: 30, completed: true, subjectId: 'sub_3', chapterId: 'ch_or_1' },
+        { id: 'tsk_4', name: 'Watch Ortho Bone Tumour Video', date: getTodayYMD(), time: '16:00', duration: 60, completed: false, subjectId: 'sub_3', chapterId: 'ch_or_1' }
+      ],
+      focusSessions: [
+        { id: 'foc_1', date: getTodayYMD(), type: 'Study', subjectId: 'sub_1', chapterId: 'ch_su_4', durationSeconds: 7200, timestamp: Date.now() - 14400000 },
+        { id: 'foc_2', date: getTodayYMD(), type: 'Revision', subjectId: 'sub_3', chapterId: 'ch_or_1', durationSeconds: 3600, timestamp: Date.now() - 7200000 }
+      ],
+      mistakes: [
+        { id: 'mst_1', subjectId: 'sub_1', topic: 'RP Trauma Exploration', notes: 'Zone 2 hematoma non-expanding should NOT be explored', status: 'Unresolved', date: getTodayYMD() },
+        { id: 'mst_2', subjectId: 'sub_2', topic: 'Stye Treatment', notes: 'Hot compresses, no incision in cellulitis phase', status: 'Corrected', date: getTodayYMD() }
+      ],
+      mcqIds: [
+        { id: 'mid_1', qid: '#14289', platform: 'Marrow', subjectId: 'sub_1', topic: 'Trauma Shock', notes: 'Hypotonic saline error' }
+      ],
+      grandTests: [],
+      mcqCountExtra: 0,
+      gymLogs: [{ date: getTodayYMD(), split: 'Back + Biceps + Cardio', weight: 72 }],
+      nutritionLogs: [{ date: getTodayYMD(), protein: 106, kcal: 2000 }],
+      revisionHistory: []
+    };
+
+    function loadPersistedState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          appState = Object.assign(appState, JSON.parse(saved));
+        } catch(e) { console.error(e); }
+      }
+      document.body.className = `${appState.theme} ${appState.fontStyle || ''}`;
+      document.getElementById('settingsExamTitleInput').value = appState.examTitle;
+      document.getElementById('settingsExamDateInput').value = appState.examDate;
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      syncToCloud(false);
+    }
+
+    // ==================== SUPABASE GOOGLE AUTH & SYNC ====================
+    async function loginWithGoogle() {
+      if (!supabaseClient) {
+        alert('Supabase client is not ready.');
+        return;
+      }
+      // Explicit redirect target to return directly to the repository URL
+      const redirectUrl = window.location.origin + window.location.pathname;
+      const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl
+        }
+      });
+      if (error) alert('Login Error: ' + error.message);
+    }
+
+    async function logoutUser() {
+      if (!supabaseClient) return;
+      await supabaseClient.auth.signOut();
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.reload();
+    }
+
+    async function syncToCloud(showNotice) {
+      if (!supabaseClient) return;
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) return;
+
+        const { error } = await supabaseClient
+          .from('user_data')
+          .upsert({
+            user_id: session.user.id,
+            email: session.user.email,
+            app_state: appState,
+            updated_at: new Date().toISOString()
+          });
+
+        if (!error) {
+          const badge = document.getElementById('syncStatusBadge');
+          if (badge) badge.classList.remove('hidden');
+          if (showNotice) alert('Your study records have been backed up to the cloud!');
+        } else {
+          console.error('Sync error:', error);
+        }
+      } catch(err) {
+        console.error('Sync failed:', err);
+      }
+    }
+
+    async function checkUserSessionAndLoadCloud() {
+      if (!supabaseClient) return;
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const loggedOutEl = document.getElementById('loggedOutSection');
+        const loggedInEl = document.getElementById('loggedInSection');
+        const badge = document.getElementById('syncStatusBadge');
+
+        if (session && session.user) {
+          loggedOutEl.classList.add('hidden');
+          loggedInEl.classList.remove('hidden');
+          document.getElementById('userAccountEmailDisplay').textContent = session.user.email;
+          if (badge) badge.classList.remove('hidden');
+
+          // Pull cloud state
+          const { data, error } = await supabaseClient
+            .from('user_data')
+            .select('app_state')
+            .eq('user_id', session.user.id)
+            .single();
+
+          if (data && data.app_state && Object.keys(data.app_state).length > 0) {
+            appState = Object.assign(appState, data.app_state);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            refreshAllViews();
+          } else {
+            // First time login: push local records up to cloud
+            syncToCloud(false);
+          }
+        } else {
+          loggedOutEl.classList.remove('hidden');
+          loggedInEl.classList.add('hidden');
+          if (badge) badge.classList.add('hidden');
+        }
+      } catch(e) {
+        console.error('Session check error:', e);
+      }
+    }
+
+    let currentTab = 'home';
+    let selectedCalendarDate = getTodayYMD();
+    let calendarWindowOffset = 0;
+    let selectedSubjectId = appState.subjects[0]?.id || 'sub_1';
+    let activeTaskIdForAction = null;
+
+    function switchTab(tName) {
+      currentTab = tName;
+      ['home', 'focus', 'syllabus', 'tracker', 'statistics'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.toggle('hidden', t !== tName);
+        const navBtn = document.getElementById(`nav-${t}`);
+        if (t === tName) {
+          navBtn.classList.remove('text-themeMuted');
+          navBtn.classList.add('text-themeAccent');
+        } else {
+          navBtn.classList.add('text-themeMuted');
+          navBtn.classList.remove('text-themeAccent');
+        }
+      });
+      refreshAllViews();
+    }
+
+    function switchFocusSubTab(sub) {
+      ['today', 'goals', 'history'].forEach(s => {
+        document.getElementById(`focusSub-${s}`).classList.toggle('hidden', s !== sub);
+        const btn = document.getElementById(`focusSubBtn-${s}`);
+        btn.className = s === sub
+          ? 'flex-1 py-1.5 text-xs font-bold rounded-xl bg-themeCard text-themeAccent shadow'
+          : 'flex-1 py-1.5 text-xs font-bold rounded-xl text-themeMuted';
+      });
+      if (sub === 'goals') renderFocusGoalsTab();
+      if (sub === 'history') renderFocusHistoryTab();
+    }
+
+    function switchSyllabusSubTab(sub) {
+      document.getElementById('sylSub-syllabus').classList.toggle('hidden', sub !== 'syllabus');
+      document.getElementById('sylSub-revision').classList.toggle('hidden', sub !== 'revision');
+      document.getElementById('sylSubBtn-syllabus').className = sub === 'syllabus'
+        ? 'flex-1 py-1.5 text-xs font-bold rounded-xl bg-themeCard text-themeAccent shadow'
+        : 'flex-1 py-1.5 text-xs font-bold rounded-xl text-themeMuted';
+      document.getElementById('sylSubBtn-revision').className = sub === 'revision'
+        ? 'flex-1 py-1.5 text-xs font-bold rounded-xl bg-themeCard text-themeAccent shadow'
+        : 'flex-1 py-1.5 text-xs font-bold rounded-xl text-themeMuted';
+
+      if (sub === 'revision') renderRevisionTab();
+    }
+
+    function switchTrackerModule(mod) {
+      ['mistakes', 'mcqid', 'gym', 'nutrition', 'gt'].forEach(m => {
+        document.getElementById(`trackerMod-${m}`).classList.toggle('hidden', m !== mod);
+        const btn = document.getElementById(`trkBtn-${m}`);
+        btn.className = m === mod
+          ? 'px-3.5 py-1.5 rounded-xl bg-themeAccent text-white text-xs font-bold whitespace-nowrap shadow'
+          : 'px-3.5 py-1.5 rounded-xl bg-themeCard border border-themeBorder text-xs font-bold text-themeMuted whitespace-nowrap';
+      });
+      if (mod === 'mistakes') renderMistakesTracker();
+      if (mod === 'mcqid') renderMcqIdTracker();
+      if (mod === 'gym') renderGymTracker();
+      if (mod === 'nutrition') renderNutritionTracker();
+      if (mod === 'gt') renderGTTracker();
+    }
+
+    // ==================== HOME ====================
+    function renderHome() {
+      document.getElementById('examTitleHeader').textContent = appState.examTitle;
+      document.getElementById('homeExamTitleDisplay').textContent = appState.examTitle;
+      document.getElementById('currentDateHeader').textContent = new Date().toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short' });
+
+      const target = new Date(appState.examDate);
+      const diffMs = target - new Date();
+      if (diffMs > 0) {
+        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diffMs / (1000 * 60 * 60)) % 24);
+        const mins = Math.floor((diffMs / (1000 * 60)) % 60);
+        const secs = Math.floor((diffMs / 1000) % 60);
+        document.getElementById('homeCountdownDisplay').textContent = `${days}d ${hours}h ${mins}m ${secs}s`;
+        document.getElementById('homeDaysLeftBadge').textContent = `${days} Days Left`;
+      } else {
+        document.getElementById('homeCountdownDisplay').textContent = 'Exam Day!';
+      }
+
+      document.getElementById('dailyQuoteDisplay').textContent = `"${appState.quote}"`;
+
+      const todaySessions = appState.focusSessions.filter(s => s.date === getTodayYMD());
+      const totalStudySec = todaySessions.reduce((a, b) => a + b.durationSeconds, 0);
+      const hrs = Math.floor(totalStudySec / 3600);
+      const mins = Math.floor((totalStudySec % 3600) / 60);
+      document.getElementById('homeTodayStudyTime').textContent = `${hrs}h ${mins < 10 ? '0': ''}${mins}m`;
+
+      const goalSec = appState.dailyFocusGoalMinutes * 60;
+      const gHrs = Math.floor(appState.dailyFocusGoalMinutes / 60);
+      const gMins = appState.dailyFocusGoalMinutes % 60;
+      document.getElementById('homeDailyGoalDisplay').textContent = `${gHrs}h ${gMins < 10 ? '0': ''}${gMins}m`;
+      document.getElementById('homeStudyProgressBar').style.width = `${Math.min(100, Math.round((totalStudySec / goalSec) * 100))}%`;
+
+      let mcqsToday = appState.mcqCountExtra;
+      appState.grandTests.filter(gt => gt.date === getTodayYMD()).forEach(gt => {
+        mcqsToday += (gt.attempted || gt.total || 0);
+      });
+      document.getElementById('homeTodayMCQCount').textContent = mcqsToday;
+
+      updateOngoingTaskBanner();
+      renderCalendarStrip();
+      renderSideBySideSchedule();
+    }
+
+    function updateOngoingTaskBanner() {
+      const now = new Date();
+      const currentMinutesFromMidnight = now.getHours() * 60 + now.getMinutes();
+      const todayTasks = appState.tasks.filter(t => t.date === getTodayYMD() && !t.completed);
+      let ongoing = null;
+
+      for (const t of todayTasks) {
+        if (t.time) {
+          const [th, tm] = t.time.split(':').map(Number);
+          const startM = th * 60 + tm;
+          const endM = startM + (t.duration || 60);
+          if (currentMinutesFromMidnight >= startM && currentMinutesFromMidnight <= endM) {
+            ongoing = t;
+            break;
+          }
+        }
+      }
+
+      if (ongoing) {
+        document.getElementById('ongoingTaskText').textContent = `${ongoing.name} (${formatTime12h(ongoing.time)})`;
+      } else if (todayTasks.length > 0) {
+        document.getElementById('ongoingTaskText').textContent = `Next: ${todayTasks[0].name} (${todayTasks[0].duration}m)`;
+      } else {
+        document.getElementById('ongoingTaskText').textContent = 'All scheduled tasks completed!';
+      }
+    }
+
+    function formatTime12h(timeStr) {
+      if (!timeStr) return '';
+      const [h, m] = timeStr.split(':').map(Number);
+      const period = h >= 12 ? 'PM' : 'AM';
+      const hours12 = h % 12 || 12;
+      return `${hours12}:${m < 10 ? '0' : ''}${m} ${period}`;
+    }
+
+    function renderCalendarStrip() {
+      const container = document.getElementById('calendarStrip');
+      container.innerHTML = '';
+      const base = new Date();
+      base.setDate(base.getDate() + calendarWindowOffset - 3);
+
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(base);
+        d.setDate(base.getDate() + i);
+        const ymd = d.toISOString().split('T')[0];
+        const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+        const dayNum = d.getDate();
+
+        const isSelected = ymd === selectedCalendarDate;
+        const tasksForDay = appState.tasks.filter(t => t.date === ymd);
+        const done = tasksForDay.length > 0 && tasksForDay.every(t => t.completed);
+
+        const card = document.createElement('button');
+        card.className = `shrink-0 w-12 py-2.5 rounded-2xl flex flex-col items-center gap-1 border transition ${
+          isSelected ? 'bg-themeAccent text-white border-transparent shadow' : 'bg-themeCard border-themeBorder text-themeMuted'
+        }`;
+        card.onclick = () => {
+          selectedCalendarDate = ymd;
+          renderCalendarStrip();
+          renderSideBySideSchedule();
+        };
+
+        card.innerHTML = `
+          <span class="text-[10px] font-bold uppercase ${isSelected ? 'text-white' : 'opacity-70'}">${dayName}</span>
+          <span class="text-sm font-black ${isSelected ? 'text-white' : 'text-themeText'}">${dayNum}</span>
+          <div class="w-1.5 h-1.5 rounded-full mt-0.5 ${done ? 'bg-emerald-400' : tasksForDay.length > 0 ? 'bg-amber-400' : 'opacity-0'}"></div>
+        `;
+        container.appendChild(card);
+      }
+    }
+
+    function shiftCalendar(days) { calendarWindowOffset += days; renderCalendarStrip(); }
+    function jumpToCalendarToday() { calendarWindowOffset = 0; selectedCalendarDate = getTodayYMD(); renderCalendarStrip(); renderSideBySideSchedule(); }
+
+    function renderSideBySideSchedule() {
+      const taskContainer = document.getElementById('tasksContainer');
+      const filtered = appState.tasks.filter(t => t.date === selectedCalendarDate);
+      const doneCount = filtered.filter(t => t.completed).length;
+      document.getElementById('tasksDoneCountBadge').textContent = `${doneCount}/${filtered.length} done`;
+
+      if (filtered.length === 0) {
+        taskContainer.innerHTML = `<p class="text-center text-[11px] text-themeMuted py-4">No tasks today.</p>`;
+      } else {
+        taskContainer.innerHTML = '';
+        filtered.forEach(task => {
+          const div = document.createElement('div');
+          div.className = `p-2 rounded-xl border transition flex items-center justify-between gap-1.5 ${
+            task.completed ? 'bg-themeCardSoft/40 border-themeBorder opacity-60' : 'bg-themeCardSoft border-themeBorder'
+          }`;
+          div.innerHTML = `
+            <div class="flex items-center gap-2 flex-1 overflow-hidden">
+              <button onclick="toggleTaskDone('${task.id}')" class="w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                task.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-themeMuted'
+              }">
+                ${task.completed ? '<i data-lucide="check" class="w-3 stroke-[3]"></i>' : ''}
+              </button>
+              <div onclick="openTaskActions('${task.id}')" class="truncate cursor-pointer flex-1">
+                <span class="text-[11px] font-bold block truncate ${task.completed ? 'line-through text-themeMuted' : ''}">${task.name}</span>
+                <span class="text-[9px] text-themeMuted">⏱ ${task.duration}m ${task.time ? `• ${formatTime12h(task.time)}` : ''}</span>
+              </div>
+            </div>
+            <button onclick="openTaskActions('${task.id}')" class="text-themeMuted p-0.5"><i data-lucide="more-vertical" class="w-3.5 h-3.5"></i></button>
+          `;
+          taskContainer.appendChild(div);
+        });
+      }
+
+      const timelineContainer = document.getElementById('hourlyTimelineContainer');
+      timelineContainer.innerHTML = '';
+
+      for (let h = 6; h <= 27; h++) {
+        const actualH = h % 24;
+        const displayH = actualH === 0 ? '12 AM' : actualH > 12 ? `${actualH - 12} PM` : actualH === 12 ? '12 PM' : `${actualH} AM`;
+
+        const taskAtH = filtered.find(t => {
+          if (!t.time) return false;
+          const [th] = t.time.split(':').map(Number);
+          return th === actualH;
+        });
+
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-1.5 text-[10px] py-0.5';
+        row.innerHTML = `
+          <span class="w-10 shrink-0 font-mono text-themeMuted text-[9px]">${displayH}</span>
+          <div class="flex-1 px-1.5 py-0.5 rounded ${taskAtH ? 'bg-themeAccent/20 text-themeAccent font-bold' : 'text-themeMuted/30 italic'} truncate text-[9px]">
+            ${taskAtH ? `${taskAtH.name}` : '—'}
+          </div>
+        `;
+        timelineContainer.appendChild(row);
+      }
+      lucide.createIcons();
+    }
+
+    function toggleTaskDone(id) {
+      const t = appState.tasks.find(x => x.id === id);
+      if (t) { t.completed = !t.completed; saveState(); renderHome(); }
+    }
+
+    function openTaskActions(id) {
+      activeTaskIdForAction = id;
+      const task = appState.tasks.find(t => t.id === id);
+      if (!task) return;
+      document.getElementById('taskActionTitle').textContent = task.name;
+      openModal('taskActionsModal');
+    }
+
+    function shiftActiveTask(days) {
+      const t = appState.tasks.find(x => x.id === activeTaskIdForAction);
+      if (!t) return;
+      const d = new Date(t.date);
+      d.setDate(d.getDate() + days);
+      t.date = d.toISOString().split('T')[0];
+      saveState();
+      closeModal('taskActionsModal');
+      renderHome();
+      alert(`Shifted to ${t.date}`);
+    }
+
+    function shiftActiveTaskPrompt() {
+      const t = appState.tasks.find(x => x.id === activeTaskIdForAction);
+      if (!t) return;
+      const newD = prompt('Choose Date (YYYY-MM-DD):', t.date);
+      if (newD) {
+        t.date = newD;
+        saveState();
+        closeModal('taskActionsModal');
+        renderHome();
+      }
+    }
+
+    function editActiveTaskDuration() {
+      const t = appState.tasks.find(x => x.id === activeTaskIdForAction);
+      if (!t) return;
+      const dur = prompt('Duration in mins:', t.duration);
+      const time = prompt('Start Time (24h e.g. 14:30):', t.time || '09:00');
+      if (dur) t.duration = parseInt(dur);
+      if (time) t.time = time;
+      saveState();
+      closeModal('taskActionsModal');
+      renderHome();
+    }
+
+    function deleteActiveTask() {
+      if (confirm('Delete this task?')) {
+        appState.tasks = appState.tasks.filter(x => x.id !== activeTaskIdForAction);
+        saveState();
+        closeModal('taskActionsModal');
+        renderHome();
+      }
+    }
+
+    function openAddTaskModal() {
+      document.getElementById('taskInputDate').value = selectedCalendarDate;
+      openModal('taskModal');
+    }
+
+    function saveTask() {
+      const name = document.getElementById('taskInputName').value.trim();
+      if (!name) return;
+      appState.tasks.push({
+        id: 'tsk_' + Date.now(),
+        name,
+        date: document.getElementById('taskInputDate').value || getTodayYMD(),
+        time: document.getElementById('taskInputTime').value || '09:00',
+        duration: parseInt(document.getElementById('taskInputDuration').value) || 45,
+        completed: false,
+        subjectId: document.getElementById('taskInputSubject').value,
+        chapterId: document.getElementById('taskInputChapter').value
+      });
+      document.getElementById('taskInputName').value = '';
+      saveState();
+      closeModal('taskModal');
+      renderHome();
+    }
+
+    function renderCompletedTaskHistory() {
+      const container = document.getElementById('completedTasksMemoryList');
+      const completed = appState.tasks.filter(t => t.completed);
+      if (completed.length === 0) {
+        container.innerHTML = `<p class="text-center text-themeMuted py-4">No completed tasks yet.</p>`;
+        return;
+      }
+      container.innerHTML = '';
+      completed.forEach(t => {
+        container.innerHTML += `
+          <div class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder flex justify-between items-center">
+            <div>
+              <span class="font-bold block">${t.name}</span>
+              <span class="text-[10px] text-themeMuted">${t.date} • ⏱ ${t.duration}m</span>
+            </div>
+            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded">Done</span>
+          </div>
+        `;
+      });
+    }
+
+    function quickAddMCQ(amt) {
+      appState.mcqCountExtra = Math.max(0, (appState.mcqCountExtra || 0) + amt);
+      saveState();
+      renderHome();
+    }
+
+    // ==================== FOCUS TIMER ====================
+    let timerInterval = null;
+    let timerSelectedTargetMins = 40;
+    let timerElapsedSeconds = 0;
+    let timerRunning = false;
+    let timerStartTimestamp = null;
+    let focusType = 'Study';
+    let isPomoMode = false;
+    let pomoWorkMins = 25;
+    let pomoBreakMins = 5;
+    let pomoTotalCycles = 4;
+    let pomoCurrentCycle = 1;
+    let pomoPhase = 'work';
+    let pomoRemainingSec = 25 * 60;
+
+    function setFocusType(t) {
+      focusType = t;
+      ['Study', 'Revision', 'Other'].forEach(btn => {
+        document.getElementById(`typeBtn-${btn}`).className = btn === t
+          ? 'px-3 py-1 rounded-full text-xs font-bold bg-themeAccent text-white transition'
+          : 'px-3 py-1 rounded-full text-xs font-bold bg-themeCardSoft text-themeMuted transition';
+      });
+    }
+
+    function renameOtherFocusType() {
+      const v = prompt('Rename Other Session Type:', appState.otherTypeName);
+      if (v) {
+        appState.otherTypeName = v;
+        document.getElementById('typeBtn-Other').textContent = v;
+        saveState();
+      }
+    }
+
+    function setTimerPreset(mins) {
+      if (timerRunning) return;
+      isPomoMode = false;
+      timerSelectedTargetMins = mins;
+      timerElapsedSeconds = 0;
+      updateTimerDisplay();
+    }
+
+    function setCustomTimerDuration() {
+      if (timerRunning) return;
+      const m = prompt('Target duration in minutes:', '45');
+      if (m && !isNaN(m)) setTimerPreset(parseInt(m));
+    }
+
+    function startConfiguredPomodoro() {
+      pomoWorkMins = parseInt(document.getElementById('pomoWorkInput').value) || 25;
+      pomoBreakMins = parseInt(document.getElementById('pomoBreakInput').value) || 5;
+      pomoTotalCycles = parseInt(document.getElementById('pomoCyclesInput').value) || 4;
+      pomoCurrentCycle = 1;
+      pomoPhase = 'work';
+      pomoRemainingSec = pomoWorkMins * 60;
+      isPomoMode = true;
+      closeModal('pomodoroConfigModal');
+      resetFocusTimer();
+      toggleFocusTimer();
+    }
+
+    function toggleFocusTimer() {
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('focusPlayText').textContent = 'Resume';
+        document.getElementById('focusPlayIcon').setAttribute('data-lucide', 'play');
+      } else {
+        timerRunning = true;
+        timerStartTimestamp = Date.now();
+        document.getElementById('focusPlayText').textContent = 'Pause';
+        document.getElementById('focusPlayIcon').setAttribute('data-lucide', 'pause');
+
+        timerInterval = setInterval(() => {
+          if (!isPomoMode) {
+            timerElapsedSeconds++;
+            if (timerElapsedSeconds >= timerSelectedTargetMins * 60) {
+              finishAndSaveSession();
+            }
+          } else {
+            if (pomoRemainingSec > 0) {
+              pomoRemainingSec--;
+            } else {
+              try { new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg").play(); } catch(e){}
+              if (pomoPhase === 'work') {
+                recordFocusSession(pomoWorkMins * 60);
+                pomoPhase = 'break';
+                pomoRemainingSec = pomoBreakMins * 60;
+                alert(`Session ${pomoCurrentCycle} done! Take a ${pomoBreakMins}m break.`);
+              } else {
+                pomoPhase = 'work';
+                pomoCurrentCycle++;
+                if (pomoCurrentCycle > pomoTotalCycles) {
+                  alert('All Pomodoro cycles finished!');
+                  resetFocusTimer();
+                  return;
+                }
+                pomoRemainingSec = pomoWorkMins * 60;
+              }
+            }
+          }
+          updateTimerDisplay();
+        }, 1000);
+      }
+      lucide.createIcons();
+    }
+
+    function resetFocusTimer() {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerElapsedSeconds = 0;
+      if (isPomoMode) pomoRemainingSec = pomoWorkMins * 60;
+      updateTimerDisplay();
+      document.getElementById('focusPlayText').textContent = 'Start';
+      document.getElementById('focusPlayIcon').setAttribute('data-lucide', 'play');
+      lucide.createIcons();
+    }
+
+    function updateTimerDisplay() {
+      if (!isPomoMode) {
+        const h = Math.floor(timerElapsedSeconds / 3600);
+        const m = Math.floor((timerElapsedSeconds % 3600) / 60);
+        const s = timerElapsedSeconds % 60;
+        document.getElementById('focusTimerDisplay').textContent =
+          `${h < 10 ? '0' : ''}${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        document.getElementById('focusModeLabel').textContent = `Target: ${timerSelectedTargetMins}m (Counting 0 to ${timerSelectedTargetMins}m)`;
+      } else {
+        const m = Math.floor(pomoRemainingSec / 60);
+        const s = pomoRemainingSec % 60;
+        document.getElementById('focusTimerDisplay').textContent =
+          `00:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        document.getElementById('focusModeLabel').textContent = `🍅 Pomodoro ${pomoPhase.toUpperCase()} (${pomoCurrentCycle}/${pomoTotalCycles})`;
+      }
+    }
+
+    function finishAndSaveSession() {
+      const dur = isPomoMode ? (pomoWorkMins * 60) : timerElapsedSeconds;
+      if (dur < 30) {
+        alert('Focus session too brief (<30s).');
+        return;
+      }
+      recordFocusSession(dur);
+      resetFocusTimer();
+      alert('Focus session saved!');
+    }
+
+    function recordFocusSession(durationSec) {
+      const subId = document.getElementById('focusSubjectSelect').value;
+      const chId = document.getElementById('focusChapterSelect').value;
+
+      appState.focusSessions.unshift({
+        id: 'foc_' + Date.now(),
+        date: getTodayYMD(),
+        type: focusType === 'Other' ? appState.otherTypeName : focusType,
+        subjectId: subId,
+        chapterId: chId,
+        durationSeconds: durationSec,
+        timestamp: Date.now()
+      });
+
+      const sub = appState.subjects.find(s => s.id === subId);
+      if (sub) {
+        const ch = sub.chapters.find(c => c.id === chId);
+        if (ch) {
+          ch.totalFocusSeconds = (ch.totalFocusSeconds || 0) + durationSec;
+          ch.lastStudied = getTodayYMD();
+          if (focusType === 'Revision') ch.status = 'DONE';
+        }
+      }
+      saveState();
+      refreshAllViews();
+    }
+
+    function renderFocusTodayList() {
+      const container = document.getElementById('focusTodaySessionList');
+      const sessions = appState.focusSessions.filter(s => s.date === getTodayYMD());
+      document.getElementById('focusTodayCount').textContent = `${sessions.length} sessions`;
+
+      if (sessions.length === 0) {
+        container.innerHTML = `<p class="text-center text-xs text-themeMuted py-3">No focus sessions logged today.</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      sessions.forEach(s => {
+        const sub = appState.subjects.find(x => x.id === s.subjectId);
+        const ch = sub?.chapters.find(c => c.id === s.chapterId);
+        container.innerHTML += `
+          <div class="p-2.5 rounded-2xl bg-themeCardSoft border border-themeBorder flex justify-between items-center text-xs">
+            <div>
+              <span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase ${s.type === 'Revision' ? 'bg-amber-500/20 text-amber-500' : 'bg-indigo-500/20 text-indigo-500'}">${s.type}</span>
+              <span class="font-bold ml-1">${sub ? sub.name : 'General'}</span>
+              <p class="text-[10px] text-themeMuted">${ch ? ch.name : 'All'}</p>
+            </div>
+            <span class="font-mono font-bold text-themeAccent">${Math.round(s.durationSeconds / 60)} min</span>
+          </div>
+        `;
+      });
+    }
+
+    // ==================== FOCUS GOALS & MONTHLY SHADING ====================
+    function renderFocusGoalsTab() {
+      const gHrs = Math.floor(appState.dailyFocusGoalMinutes / 60);
+      const gMins = appState.dailyFocusGoalMinutes % 60;
+      document.getElementById('goalDailyTag').textContent = `${gHrs}h ${gMins < 10 ? '0': ''}${gMins}m / day`;
+      document.getElementById('activeStreakNumber').textContent = appState.streak;
+      document.getElementById('streakStatusText').textContent = appState.streak > 0 ? `${appState.streak} Day Active Streak 🔥` : 'No active streak';
+
+      const todaySessions = appState.focusSessions.filter(s => s.date === getTodayYMD());
+      const totalSec = todaySessions.reduce((a, b) => a + b.durationSeconds, 0);
+      document.getElementById('todayProgressGoalText').textContent = `${Math.round(totalSec / 60)}min / ${gHrs}hr`;
+      document.getElementById('todayProgressGoalBar').style.width = `${Math.min(100, Math.round((totalSec / (appState.dailyFocusGoalMinutes * 60)) * 100))}%`;
+
+      const weeklyContainer = document.getElementById('weeklyCirclesContainer');
+      weeklyContainer.innerHTML = '';
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const ymd = d.toISOString().split('T')[0];
+        const dayLabel = days[(d.getDay() + 6) % 7];
+        const sec = appState.focusSessions.filter(s => s.date === ymd).reduce((a, b) => a + b.durationSeconds, 0);
+        const met = sec >= (appState.dailyFocusGoalMinutes * 60);
+
+        weeklyContainer.innerHTML += `
+          <div class="flex flex-col items-center gap-1">
+            <div class="w-7 h-7 rounded-full border border-themeBorder flex items-center justify-center ${met ? 'bg-themeAccent text-white' : 'bg-themeCardSoft text-themeMuted'}">
+              ${met ? '✓' : ''}
+            </div>
+            <span class="text-[10px] font-bold text-themeMuted">${dayLabel}</span>
+          </div>
+        `;
+      }
+
+      renderMonthlyShadedGrid();
+    }
+
+    function changeGoalMonth(delta) {
+      appState.goalMonthOffset = (appState.goalMonthOffset || 0) + delta;
+      renderMonthlyShadedGrid();
+    }
+
+    function renderMonthlyShadedGrid() {
+      const grid = document.getElementById('monthlyGridCalendar');
+      grid.innerHTML = '';
+
+      const targetDate = new Date();
+      targetDate.setMonth(targetDate.getMonth() + (appState.goalMonthOffset || 0));
+      const year = targetDate.getFullYear();
+      const month = targetDate.getMonth();
+
+      document.getElementById('goalTrackingMonthLabel').textContent = targetDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const totalDays = new Date(year, month + 1, 0).getDate();
+
+      ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(h => {
+        grid.innerHTML += `<span class="font-black text-[10px] text-themeMuted">${h}</span>`;
+      });
+
+      for (let i = 0; i < firstDay; i++) grid.innerHTML += `<span></span>`;
+
+      for (let d = 1; d <= totalDays; d++) {
+        const ymd = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const sec = appState.focusSessions.filter(s => s.date === ymd).reduce((a, b) => a + b.durationSeconds, 0);
+        const hrs = sec / 3600;
+
+        let bgClass = 'bg-themeCardSoft/40 text-themeMuted';
+        if (hrs >= 4) bgClass = 'bg-purple-600 text-white font-black';
+        else if (hrs >= 2) bgClass = 'bg-purple-400/30 text-purple-300 font-bold';
+
+        grid.innerHTML += `
+          <div class="h-7 rounded-lg flex items-center justify-center text-[10px] ${bgClass}">
+            ${d}
+          </div>
+        `;
+      }
+    }
+
+    function saveGoalPattern() {
+      const h = parseInt(document.getElementById('goalInputHours').value) || 5;
+      const m = parseInt(document.getElementById('goalInputMinutes').value) || 0;
+      appState.dailyFocusGoalMinutes = h * 60 + m;
+      appState.recoveryDayEnabled = document.getElementById('recoveryDayToggle').checked;
+      appState.recoveryDay = parseInt(document.getElementById('recoveryDaySelect').value);
+      appState.recoveryType = document.getElementById('recoveryTypeSelect').value;
+      saveState();
+      closeModal('goalEditModal');
+      renderHome();
+      renderFocusGoalsTab();
+    }
+
+    // ==================== FOCUS HISTORY ====================
+    function renderFocusHistoryTab() {
+      const monthContainer = document.getElementById('historyMonthList');
+      monthContainer.innerHTML = '';
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+      months.forEach((m, idx) => {
+        const isCur = idx === new Date().getMonth();
+        const btn = document.createElement('button');
+        btn.className = `w-full py-2 rounded-xl text-xs font-bold text-center border ${isCur ? 'bg-themeAccent text-white border-transparent' : 'bg-themeCard border-themeBorder text-themeMuted'}`;
+        btn.textContent = m;
+        btn.onclick = () => renderHistoryMiniCalendar(idx);
+        monthContainer.appendChild(btn);
+      });
+
+      renderHistoryMiniCalendar(new Date().getMonth());
+    }
+
+    function renderHistoryMiniCalendar(monthIdx) {
+      const container = document.getElementById('historyMiniCalendar');
+      container.innerHTML = '';
+      const year = new Date().getFullYear();
+      const firstDay = new Date(year, monthIdx, 1).getDay();
+      const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) container.innerHTML += `<span></span>`;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const ymd = `${year}-${String(monthIdx + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const hasSessions = appState.focusSessions.some(s => s.date === ymd);
+
+        const dBtn = document.createElement('button');
+        dBtn.className = `p-1 rounded-lg text-center ${hasSessions ? 'bg-themeAccent text-white font-black' : 'text-themeMuted hover:bg-themeCardSoft'}`;
+        dBtn.textContent = day;
+        dBtn.onclick = () => showHistoryForDay(ymd);
+        container.appendChild(dBtn);
+      }
+    }
+
+    function showHistoryForDay(ymd) {
+      const container = document.getElementById('historyDayDetailContainer');
+      const sessions = appState.focusSessions.filter(s => s.date === ymd);
+      if (sessions.length === 0) {
+        container.innerHTML = `<p class="text-[11px] text-themeMuted text-center py-3">No focus activity on ${ymd}.</p>`;
+        return;
+      }
+      container.innerHTML = `<h5 class="text-[11px] font-black uppercase text-themeAccent">${ymd} Log</h5>`;
+      sessions.forEach(s => {
+        const sub = appState.subjects.find(x => x.id === s.subjectId);
+        const ch = sub?.chapters.find(c => c.id === s.chapterId);
+        container.innerHTML += `
+          <div class="p-2 rounded-xl bg-themeCard border border-themeBorder text-xs flex justify-between items-center">
+            <div>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded uppercase bg-themeCardSoft">${s.type}</span>
+              <span class="font-bold ml-1">${sub ? sub.name : 'General'}</span>
+              <p class="text-[10px] text-themeMuted">${ch ? ch.name : 'All'}</p>
+            </div>
+            <span class="font-mono font-bold text-themeAccent">${Math.round(s.durationSeconds / 60)} min</span>
+          </div>
+        `;
+      });
+    }
+
+    // ==================== SYLLABUS & REVISION HUB ====================
+    function renderSyllabus() {
+      let totalChapters = 0;
+      let completedChapters = 0;
+      appState.subjects.forEach(s => {
+        totalChapters += s.chapters.length;
+        completedChapters += s.chapters.filter(c => c.status === 'DONE').length;
+      });
+
+      const overallPct = totalChapters === 0 ? 0 : Math.round((completedChapters / totalChapters) * 100);
+      document.getElementById('overallSyllabusPctCircle').textContent = `${overallPct}%`;
+      document.getElementById('overallSubsRatio').textContent = `${appState.subjects.length} Subjects`;
+      document.getElementById('overallChaptersRatio').textContent = `${completedChapters}/${totalChapters} Finished`;
+
+      const miniBars = document.getElementById('subjectMiniProgressBars');
+      miniBars.innerHTML = '';
+      appState.subjects.forEach(s => {
+        const done = s.chapters.filter(c => c.status === 'DONE').length;
+        const pct = s.chapters.length === 0 ? 0 : Math.round((done / s.chapters.length) * 100);
+        miniBars.innerHTML += `
+          <div class="flex justify-between items-center">
+            <span class="truncate pr-1">${s.name}</span>
+            <span class="font-bold">${pct}%</span>
+          </div>
+        `;
+      });
+
+      const subList = document.getElementById('syllabusSubjectsSidebar');
+      subList.innerHTML = '';
+      appState.subjects.forEach(s => {
+        const isSel = s.id === selectedSubjectId;
+        const done = s.chapters.filter(c => c.status === 'DONE').length;
+        const pct = s.chapters.length === 0 ? 0 : Math.round((done / s.chapters.length) * 100);
+        const rev = s.chapters.filter(c => c.status === 'R').length;
+
+        const card = document.createElement('div');
+        card.onclick = () => { selectedSubjectId = s.id; renderSyllabus(); };
+        card.className = `p-3 rounded-2xl border cursor-pointer transition ${isSel ? 'bg-themeAccent/20 border-themeAccent' : 'bg-themeCard border-themeBorder'}`;
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black px-1.5 py-0.5 rounded bg-themeCardSoft" style="color:${s.color}">${s.symbol}</span>
+            <span class="text-[10px] font-bold text-themeMuted">${pct}%</span>
+          </div>
+          <h5 class="text-xs font-bold text-themeText mt-1.5 truncate">${s.name}</h5>
+          <p class="text-[9px] text-themeMuted">${done}/${s.chapters.length} chapters</p>
+          <p class="text-[9px] text-amber-400 font-semibold mt-0.5">Revision: ${rev}</p>
+        `;
+        subList.appendChild(card);
+      });
+
+      const activeSub = appState.subjects.find(s => s.id === selectedSubjectId) || appState.subjects[0];
+      const chList = document.getElementById('syllabusChaptersList');
+      chList.innerHTML = '';
+
+      if (!activeSub || activeSub.chapters.length === 0) {
+        chList.innerHTML = `<p class="text-center text-xs text-themeMuted py-6">No chapters added. Tap "+ Add Chapter".</p>`;
+        return;
+      }
+
+      activeSub.chapters.forEach(ch => {
+        const div = document.createElement('div');
+        div.className = 'p-3 rounded-2xl bg-themeCard border border-themeBorder space-y-2';
+        div.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="truncate flex-1">
+              <h5 class="text-xs font-bold text-themeText truncate">${ch.name}</h5>
+              ${ch.notes ? `<p class="text-[10px] text-themeMuted truncate">${ch.notes}</p>` : ''}
+            </div>
+            <button onclick="deleteChapter('${activeSub.id}', '${ch.id}')" class="text-themeMuted hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+          </div>
+          <div class="flex gap-1 pt-1">
+            <button onclick="setChapterStatus('${activeSub.id}', '${ch.id}', 'BLANK')" class="flex-1 py-1 rounded-lg text-[10px] font-bold border ${ch.status === 'BLANK' ? 'bg-themeCardSoft text-themeText border-themeText' : 'border-themeBorder text-themeMuted'}">Left</button>
+            <button onclick="setChapterStatus('${activeSub.id}', '${ch.id}', 'R')" class="flex-1 py-1 rounded-lg text-[10px] font-bold border ${ch.status === 'R' ? 'bg-amber-500 text-white border-transparent' : 'border-themeBorder text-themeMuted'}">R</button>
+            <button onclick="setChapterStatus('${activeSub.id}', '${ch.id}', 'MCQ')" class="flex-1 py-1 rounded-lg text-[10px] font-bold border ${ch.status === 'MCQ' ? 'bg-indigo-500 text-white border-transparent' : 'border-themeBorder text-themeMuted'}">MCQ</button>
+            <button onclick="setChapterStatus('${activeSub.id}', '${ch.id}', 'DONE')" class="flex-1 py-1 rounded-lg text-[10px] font-bold border ${ch.status === 'DONE' ? 'bg-emerald-500 text-white border-transparent' : 'border-themeBorder text-themeMuted'}">Done ✓</button>
+          </div>
+        `;
+        chList.appendChild(div);
+      });
+      lucide.createIcons();
+    }
+
+    function setChapterStatus(subId, chId, status) {
+      const sub = appState.subjects.find(s => s.id === subId);
+      const ch = sub?.chapters.find(c => c.id === chId);
+      if (ch) {
+        ch.status = status;
+        if (status === 'R') ch.nextRevisionDate = getTodayYMD();
+        saveState();
+        renderSyllabus();
+      }
+    }
+
+    function deleteChapter(subId, chId) {
+      if (confirm('Delete chapter?')) {
+        const sub = appState.subjects.find(s => s.id === subId);
+        if (sub) {
+          sub.chapters = sub.chapters.filter(c => c.id !== chId);
+          saveState();
+          renderSyllabus();
+        }
+      }
+    }
+
+    function renderRevisionTab() {
+      const queueContainer = document.getElementById('revisionQueueContainer');
+      const histContainer = document.getElementById('revisionHistoryLogContainer');
+      queueContainer.innerHTML = '';
+      histContainer.innerHTML = '';
+
+      let revList = [];
+      appState.subjects.forEach(s => {
+        s.chapters.filter(c => c.status === 'R' || (c.nextRevisionDate && c.nextRevisionDate <= getTodayYMD())).forEach(ch => {
+          revList.push({ sub: s, ch });
+        });
+      });
+
+      if (revList.length === 0) {
+        queueContainer.innerHTML = `<p class="text-xs text-themeMuted py-4 text-center">🎉 No revisions pending!</p>`;
+      } else {
+        revList.forEach(({ sub, ch }) => {
+          queueContainer.innerHTML += `
+            <div class="p-3 rounded-2xl bg-themeCard border border-themeBorder flex items-center justify-between">
+              <div>
+                <span class="text-[10px] font-bold uppercase text-amber-400">${sub.name} • Stage ${ch.revStage || 0}</span>
+                <h5 class="text-xs font-bold text-themeText">${ch.name}</h5>
+                <p class="text-[10px] text-themeMuted">Scheduled: ${ch.nextRevisionDate || 'Today'}</p>
+              </div>
+              <button onclick="advanceSpacedRevision('${sub.id}', '${ch.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-500 text-white font-bold text-xs flex items-center gap-1 shadow">
+                <i data-lucide="check" class="w-3.5 h-3.5"></i> Revised
+              </button>
+            </div>
+          `;
+        });
+      }
+
+      if (appState.revisionHistory.length === 0) {
+        histContainer.innerHTML = `<p class="text-xs text-themeMuted py-3 text-center">No completed revisions logged.</p>`;
+      } else {
+        appState.revisionHistory.forEach((rh, idx) => {
+          histContainer.innerHTML += `
+            <div class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder flex items-center justify-between text-xs">
+              <div>
+                <span class="font-bold text-themeText">${rh.subName} — ${rh.chName}</span>
+                <p class="text-[10px] text-themeMuted">${rh.date} (Stage ${rh.stageCompleted} ✓)</p>
+              </div>
+              <button onclick="undoRevisionCompletion(${idx})" class="text-[10px] font-bold text-rose-400 underline">Undo</button>
+            </div>
+          `;
+        });
+      }
+      lucide.createIcons();
+    }
+
+    function advanceSpacedRevision(subId, chId) {
+      const sub = appState.subjects.find(s => s.id === subId);
+      const ch = sub?.chapters.find(c => c.id === chId);
+      if (!ch) return;
+
+      const intervals = [1, 3, 7, 14, 30];
+      const curStage = ch.revStage || 0;
+      const nextDays = intervals[Math.min(curStage, intervals.length - 1)];
+
+      const nextD = new Date();
+      nextD.setDate(nextD.getDate() + nextDays);
+
+      ch.revStage = Math.min(curStage + 1, 5);
+      ch.nextRevisionDate = nextD.toISOString().split('T')[0];
+      ch.status = 'DONE';
+
+      appState.revisionHistory.unshift({
+        subId, chId, subName: sub.name, chName: ch.name, date: getTodayYMD(), stageCompleted: curStage
+      });
+
+      saveState();
+      renderRevisionTab();
+      renderSyllabus();
+      alert(`Marked revised! Next scheduled in +${nextDays} days (${ch.nextRevisionDate})`);
+    }
+
+    function undoRevisionCompletion(idx) {
+      const item = appState.revisionHistory[idx];
+      if (item) {
+        const sub = appState.subjects.find(s => s.id === item.subId);
+        const ch = sub?.chapters.find(c => c.id === item.chId);
+        if (ch) {
+          ch.status = 'R';
+          ch.nextRevisionDate = getTodayYMD();
+        }
+        appState.revisionHistory.splice(idx, 1);
+        saveState();
+        renderRevisionTab();
+        renderSyllabus();
+      }
+    }
+
+    function saveScheduledRevision() {
+      const subId = document.getElementById('schedRevSubjectSelect').value;
+      const chId = document.getElementById('schedRevChapterSelect').value;
+      const date = document.getElementById('schedRevDateInput').value;
+      if (!date) return;
+
+      const sub = appState.subjects.find(s => s.id === subId);
+      const ch = sub?.chapters.find(c => c.id === chId);
+      if (ch) {
+        ch.nextRevisionDate = date;
+        ch.status = 'R';
+        saveState();
+        closeModal('scheduleCustomRevisionModal');
+        renderRevisionTab();
+        renderSyllabus();
+        alert('Revision scheduled!');
+      }
+    }
+
+    // ==================== TRACKERS ====================
+    function renderMistakesTracker() {
+      const container = document.getElementById('mistakesGroupedContainer');
+      container.innerHTML = '';
+
+      if (appState.mistakes.length === 0) {
+        container.innerHTML = `<p class="text-center text-xs text-themeMuted py-6">No mistakes recorded.</p>`;
+        return;
+      }
+
+      appState.subjects.forEach(sub => {
+        const subMistakes = appState.mistakes.filter(m => m.subjectId === sub.id);
+        if (subMistakes.length === 0) return;
+
+        const subCard = document.createElement('div');
+        subCard.className = 'rounded-3xl p-3.5 bg-themeCard border border-themeBorder space-y-2';
+        subCard.innerHTML = `
+          <div class="flex items-center gap-2 pb-1 border-b border-themeBorder">
+            <span class="text-xs font-black px-2 py-0.5 rounded bg-themeCardSoft" style="color:${sub.color}">${sub.symbol}</span>
+            <h4 class="text-xs font-black uppercase text-themeText">${sub.name}</h4>
+          </div>
+          <div class="space-y-1.5" id="mistakesSubList-${sub.id}"></div>
+        `;
+        container.appendChild(subCard);
+
+        const list = subCard.querySelector(`#mistakesSubList-${sub.id}`);
+        subMistakes.forEach(m => {
+          list.innerHTML += `
+            <div class="p-2.5 rounded-xl bg-themeCardSoft border border-themeBorder flex items-center justify-between gap-2 text-xs">
+              <div class="truncate flex-1">
+                <span class="font-bold text-themeText block truncate ${m.status === 'Corrected' ? 'line-through text-themeMuted' : ''}">${m.topic}</span>
+                ${m.notes ? `<p class="text-[10px] text-themeMuted truncate">Trap: ${m.notes}</p>` : ''}
+              </div>
+              <button onclick="scheduleMistakePrompt12h('${m.id}')" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-themeCard border border-themeBorder text-themeAccent shrink-0">
+                Add to Task?
+              </button>
+            </div>
+          `;
+        });
+      });
+    }
+
+    function saveMistakeSimple() {
+      const subId = document.getElementById('mistakeSubject').value;
+      const topic = document.getElementById('mistakeTopic').value.trim();
+      const notes = document.getElementById('mistakeNotes').value.trim();
+      if (!topic) return;
+
+      appState.mistakes.unshift({
+        id: 'mst_' + Date.now(),
+        subjectId: subId,
+        topic,
+        notes,
+        status: 'Unresolved',
+        date: getTodayYMD()
+      });
+
+      document.getElementById('mistakeTopic').value = '';
+      document.getElementById('mistakeNotes').value = '';
+      saveState();
+      closeModal('mistakeModal');
+      renderMistakesTracker();
+    }
+
+    function scheduleMistakePrompt12h(id) {
+      const m = appState.mistakes.find(x => x.id === id);
+      if (!m) return;
+
+      const date = prompt('Enter schedule date (YYYY-MM-DD):', getTodayYMD());
+      const time12h = prompt('Enter time in AM/PM format (e.g. 09:00 AM or 04:30 PM):', '09:00 AM');
+      const dur = prompt('Duration in mins:', '30');
+
+      if (date && time12h) {
+        let [timePart, modifier] = time12h.trim().split(' ');
+        let [hours, minutes] = timePart.split(':');
+        if (hours === '12') hours = '00';
+        if (modifier && modifier.toUpperCase() === 'PM') hours = parseInt(hours, 10) + 12;
+        const time24 = `${String(hours).padStart(2, '0')}:${minutes || '00'}`;
+
+        appState.tasks.push({
+          id: 'tsk_' + Date.now(),
+          name: `Analyse Mistake: ${m.topic}`,
+          date,
+          time: time24,
+          duration: parseInt(dur) || 30,
+          completed: false,
+          subjectId: m.subjectId,
+          chapterId: ''
+        });
+        saveState();
+        renderHome();
+        alert('Mistake added to daily schedule!');
+      }
+    }
+
+    // MCQ ID Tracker
+    function renderMcqIdTracker() {
+      const container = document.getElementById('mcqIdListContainer');
+      container.innerHTML = '';
+      if (!appState.mcqIds || appState.mcqIds.length === 0) {
+        container.innerHTML = `<p class="text-center text-xs text-themeMuted py-6">No MCQ IDs logged.</p>`;
+        return;
+      }
+      appState.mcqIds.forEach(m => {
+        const sub = appState.subjects.find(s => s.id === m.subjectId);
+        container.innerHTML += `
+          <div class="p-3 rounded-2xl bg-themeCard border border-themeBorder text-xs space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="font-black text-emerald-400 text-sm">${m.qid}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-themeCardSoft">${m.platform}</span>
+            </div>
+            <div class="text-[11px] font-bold text-themeText">${sub ? sub.name : 'General'} • ${m.topic}</div>
+            ${m.notes ? `<p class="text-[10px] text-themeMuted">${m.notes}</p>` : ''}
+          </div>
+        `;
+      });
+    }
+
+    function saveMcqIdEntry() {
+      const qid = document.getElementById('mcqIdInput').value.trim();
+      const platform = document.getElementById('mcqPlatformInput').value;
+      const subjectId = document.getElementById('mcqIdSubjectSelect').value;
+      const topic = document.getElementById('mcqIdTopicInput').value.trim();
+      const notes = document.getElementById('mcqIdNotesInput').value.trim();
+      if (!qid) return;
+
+      if (!appState.mcqIds) appState.mcqIds = [];
+      appState.mcqIds.unshift({ id: 'mid_' + Date.now(), qid, platform, subjectId, topic, notes });
+      document.getElementById('mcqIdInput').value = '';
+      document.getElementById('mcqIdTopicInput').value = '';
+      document.getElementById('mcqIdNotesInput').value = '';
+      saveState();
+      closeModal('mcqIdModal');
+      renderMcqIdTracker();
+    }
+
+    // Gym, Nutrition, and GT
+    function renderGymTracker() {
+      const table = document.getElementById('gymLogTable');
+      table.innerHTML = '';
+      if (appState.gymLogs.length === 0) {
+        table.innerHTML = `<p class="text-center text-xs text-themeMuted py-4">No workouts logged.</p>`;
+        return;
+      }
+      appState.gymLogs.forEach(g => {
+        table.innerHTML += `
+          <div class="p-3 rounded-2xl bg-themeCard border border-themeBorder flex justify-between items-center text-xs">
+            <div>
+              <span class="font-bold text-themeText">${g.date}</span>
+              <p class="text-[11px] text-themeMuted">${g.split}</p>
+            </div>
+            ${g.weight ? `<span class="text-themeAccent font-bold">${g.weight} kg</span>` : ''}
+          </div>
+        `;
+      });
+    }
+
+    function saveGymLog() {
+      const split = document.getElementById('gymSplitInput').value.trim();
+      const date = document.getElementById('gymDateInput').value || getTodayYMD();
+      const weight = parseFloat(document.getElementById('gymWeightInput').value) || null;
+      if (!split) return;
+      appState.gymLogs.unshift({ date, split, weight });
+      saveState();
+      closeModal('gymModal');
+      renderGymTracker();
+    }
+
+    function renderNutritionTracker() {
+      const container = document.getElementById('nutritionTableContainer');
+      container.innerHTML = '';
+      if (appState.nutritionLogs.length === 0) {
+        container.innerHTML = `<p class="text-center text-xs text-themeMuted py-4">No nutrition entries.</p>`;
+        return;
+      }
+      let totalP = 0;
+      let totalKcal = 0;
+      appState.nutritionLogs.forEach(n => {
+        totalP += n.protein;
+        totalKcal += n.kcal;
+        container.innerHTML += `
+          <div class="p-3 rounded-2xl bg-themeCard border border-themeBorder flex justify-between items-center text-xs">
+            <span class="font-bold text-themeText">${n.date}</span>
+            <div class="flex gap-3">
+              <span class="text-themeAccent font-bold">${n.protein}g Protein</span>
+              <span class="text-themeMuted">${n.kcal} kcal</span>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById('nutritionTotalsDisplay').textContent = `Total: ${totalP}g protein • ${totalKcal} kcal`;
+      const avgP = Math.round(totalP / appState.nutritionLogs.length);
+      const avgC = Math.round(totalKcal / appState.nutritionLogs.length);
+      document.getElementById('nutritionAveragesDisplay').textContent = `Daily Average: ${avgP}g • ${avgC} kcal`;
+    }
+
+    function saveNutritionLog() {
+      const date = document.getElementById('nutritionDateInput').value || getTodayYMD();
+      const protein = parseInt(document.getElementById('nutritionProteinInput').value) || 0;
+      const kcal = parseInt(document.getElementById('nutritionKcalInput').value) || 0;
+      appState.nutritionLogs.unshift({ date, protein, kcal });
+      saveState();
+      closeModal('nutritionModal');
+      renderNutritionTracker();
+    }
+
+    function renderGTTracker() {
+      const container = document.getElementById('gtListContainer');
+      container.innerHTML = '';
+      if (appState.grandTests.length === 0) {
+        container.innerHTML = `<p class="text-center text-xs text-themeMuted py-6">No GTs recorded.</p>`;
+        return;
+      }
+      appState.grandTests.forEach(gt => {
+        const pct = Math.round((gt.score / gt.total) * 100);
+        container.innerHTML += `
+          <div class="p-3.5 rounded-2xl bg-themeCard border border-themeBorder space-y-2 text-xs">
+            <div class="flex justify-between items-center">
+              <div>
+                <h5 class="font-bold text-sm text-themeText">${gt.name}</h5>
+                <p class="text-[10px] text-themeMuted">${gt.platform} • ${gt.date}</p>
+              </div>
+              <div class="text-right">
+                <span class="text-base font-black text-themeAccent">${gt.score} / ${gt.total}</span>
+                <p class="text-[10px] font-bold text-emerald-400">${pct}% accuracy</p>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function saveGT() {
+      const name = document.getElementById('gtName').value.trim();
+      if (!name) return;
+      appState.grandTests.unshift({
+        id: 'gt_' + Date.now(),
+        name,
+        platform: document.getElementById('gtPlatform').value.trim() || 'Marrow',
+        date: document.getElementById('gtDate').value || getTodayYMD(),
+        score: parseFloat(document.getElementById('gtScore').value) || 0,
+        total: parseFloat(document.getElementById('gtTotal').value) || 200,
+        attempted: parseFloat(document.getElementById('gtAttempted').value) || 200
+      });
+      saveState();
+      closeModal('gtModal');
+      renderGTTracker();
+      renderHome();
+    }
+
+    // ==================== STATISTICS ====================
+    function renderStatistics() {
+      const totalSec = appState.focusSessions.reduce((a, b) => a + b.durationSeconds, 0);
+      document.getElementById('statsTotalStudyHours').textContent = `${(totalSec / 3600).toFixed(1)}h`;
+
+      let totalMCQs = appState.mcqCountExtra;
+      appState.grandTests.forEach(gt => totalMCQs += (gt.attempted || gt.total || 0));
+      document.getElementById('statsTotalMCQs').textContent = totalMCQs;
+      document.getElementById('statsUnresolvedMistakes').textContent = appState.mistakes.filter(m => m.status === 'Unresolved').length;
+
+      if (appState.grandTests.length > 0) {
+        const totalScore = appState.grandTests.reduce((a, b) => a + b.score, 0);
+        const totalMarks = appState.grandTests.reduce((a, b) => a + b.total, 0);
+        document.getElementById('statsAvgGTScore').textContent = `${Math.round((totalScore / totalMarks) * 100)}%`;
+      } else {
+        document.getElementById('statsAvgGTScore').textContent = '0%';
+      }
+
+      const list = document.getElementById('subjectWiseStatsList');
+      list.innerHTML = '';
+      appState.subjects.forEach(s => {
+        const sec = appState.focusSessions.filter(fs => fs.subjectId === s.id).reduce((a, b) => a + b.durationSeconds, 0);
+        const hrs = (sec / 3600).toFixed(1);
+        const doneCh = s.chapters.filter(c => c.status === 'DONE').length;
+
+        list.innerHTML += `
+          <div class="p-3 rounded-2xl bg-themeCardSoft border border-themeBorder flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-black px-1.5 py-0.5 rounded" style="background-color:${s.color}20; color:${s.color}">${s.symbol}</span>
+              <span class="font-bold text-themeText">${s.name}</span>
+            </div>
+            <div class="text-right">
+              <span class="font-black text-themeAccent">${hrs} hours</span>
+              <p class="text-[10px] text-themeMuted">${doneCh}/${s.chapters.length} chapters done</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    // ==================== COMMON HELPERS ====================
+    function populateSubjectDropdowns() {
+      const options = appState.subjects.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+      document.getElementById('focusSubjectSelect').innerHTML = options;
+      document.getElementById('addChapterSubjectSelect').innerHTML = options;
+      document.getElementById('taskInputSubject').innerHTML = options;
+      document.getElementById('mistakeSubject').innerHTML = options;
+      document.getElementById('schedRevSubjectSelect').innerHTML = options;
+      document.getElementById('mcqIdSubjectSelect').innerHTML = options;
+
+      populateFocusChapters();
+      populateTaskChapters();
+      populateSchedRevChapters();
+    }
+
+    function populateFocusChapters() {
+      const subId = document.getElementById('focusSubjectSelect').value;
+      const sub = appState.subjects.find(s => s.id === subId);
+      document.getElementById('focusChapterSelect').innerHTML = sub?.chapters.map(c => `<option value="${c.id}">${c.name}</option>`).join('') || '<option value="">Entire Subject</option>';
+    }
+
+    function populateTaskChapters() {
+      const subId = document.getElementById('taskInputSubject').value;
+      const sub = appState.subjects.find(s => s.id === subId);
+      document.getElementById('taskInputChapter').innerHTML = sub?.chapters.map(c => `<option value="${c.id}">${c.name}</option>`).join('') || '<option value="">General</option>';
+    }
+
+    function populateSchedRevChapters() {
+      const subId = document.getElementById('schedRevSubjectSelect').value;
+      const sub = appState.subjects.find(s => s.id === subId);
+      document.getElementById('schedRevChapterSelect').innerHTML = sub?.chapters.map(c => `<option value="${c.id}">${c.name}</option>`).join('') || '<option value="">No chapters</option>';
+    }
+
+    function saveNewSubject() {
+      const name = document.getElementById('newSubjectName').value.trim();
+      const color = document.getElementById('newSubjectColor').value;
+      if (!name) return;
+      appState.subjects.push({
+        id: 'sub_' + Date.now(),
+        name,
+        symbol: name.substring(0, 2).toUpperCase(),
+        color,
+        chapters: []
+      });
+      saveState();
+      closeModal('addSubjectModal');
+      populateSubjectDropdowns();
+      renderSyllabus();
+    }
+
+    function saveNewChapter() {
+      const subId = document.getElementById('addChapterSubjectSelect').value;
+      const name = document.getElementById('newChapterName').value.trim();
+      const notes = document.getElementById('newChapterNotes').value.trim();
+      if (!name) return;
+      const sub = appState.subjects.find(s => s.id === subId);
+      if (sub) {
+        sub.chapters.push({
+          id: 'ch_' + Date.now(),
+          name,
+          notes,
+          status: 'BLANK',
+          totalFocusSeconds: 0,
+          lastStudied: null,
+          nextRevisionDate: null,
+          revStage: 0
+        });
+        saveState();
+        closeModal('addChapterModal');
+        renderSyllabus();
+      }
+    }
+
+    function setTheme(t) {
+      appState.theme = t;
+      document.body.className = `${t} ${appState.fontStyle || ''}`;
+      saveState();
+    }
+
+    function setFontStyle(f) {
+      appState.fontStyle = f;
+      document.body.className = `${appState.theme} ${f}`;
+      saveState();
+    }
+
+    function editDailyQuote() {
+      const q = prompt('Edit motivational quote:', appState.quote);
+      if (q) { appState.quote = q; saveState(); renderHome(); }
+    }
+
+    function exportDataBackup() {
+      const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", str);
+      a.setAttribute("download", `TRACKEBILITY_BACKUP_${getTodayYMD()}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    function importDataBackup(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          appState = JSON.parse(evt.target.result);
+          saveState();
+          alert('Data restored!');
+          window.location.reload();
+        } catch(err) { alert('Invalid backup file.'); }
+      };
+      reader.readAsText(file);
+    }
+
+    function runGlobalSearch(q) {
+      q = q.toLowerCase().trim();
+      const container = document.getElementById('globalSearchResults');
+      if (!q) { container.innerHTML = ''; return; }
+
+      let html = '';
+      appState.subjects.forEach(s => {
+        s.chapters.forEach(c => {
+          if (c.name.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)) {
+            html += `<div class="p-2 rounded-xl bg-themeCardSoft"><span class="text-[9px] text-themeAccent font-bold uppercase">${s.name}</span><p class="font-bold">${c.name}</p></div>`;
+          }
+        });
+      });
+      appState.mistakes.forEach(m => {
+        if (m.topic.toLowerCase().includes(q)) {
+          html += `<div class="p-2 rounded-xl bg-themeCardSoft"><span class="text-[9px] text-rose-400 font-bold uppercase">Mistake</span><p class="font-bold">${m.topic}</p></div>`;
+        }
+      });
+      if (appState.mcqIds) {
+        appState.mcqIds.forEach(mid => {
+          if (mid.qid.toLowerCase().includes(q) || mid.topic.toLowerCase().includes(q)) {
+            html += `<div class="p-2 rounded-xl bg-themeCardSoft"><span class="text-[9px] text-emerald-400 font-bold uppercase">${mid.platform} MCQ</span><p class="font-bold">${mid.qid} - ${mid.topic}</p></div>`;
+          }
+        });
+      }
+      container.innerHTML = html || `<p class="text-themeMuted text-center py-4">No records found.</p>`;
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+      if (id === 'taskHistoryModal') renderCompletedTaskHistory();
+      if (id === 'settingsModal') checkUserSessionAndLoadCloud();
+    }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function refreshAllViews() {
+      renderHome();
+      renderFocusTodayList();
+      renderSyllabus();
+      renderStatistics();
+      lucide.createIcons();
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      loadPersistedState();
+      populateSubjectDropdowns();
+      refreshAllViews();
+
+      if (supabaseClient) {
+        // Handle OAuth redirect token directly if present in URL
+        if (window.location.hash && window.location.hash.includes('access_token')) {
+          const { data, error } = await supabaseClient.auth.getSession();
+          if (data && data.session) {
+            // Clean hash from address bar for a neat URL
+            window.history.replaceState(null, null, window.location.pathname);
+            await checkUserSessionAndLoadCloud();
+          }
+        } else {
+          await checkUserSessionAndLoadCloud();
+        }
+
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+          if (event === 'SIGNED_IN' || event === 'USER_UPDATED' || event === 'INITIAL_SESSION') {
+            await checkUserSessionAndLoadCloud();
+          }
+        });
+      }
+
+      setInterval(() => { if (currentTab === 'home') renderHome(); }, 1000);
+    });
+  </script>
+</body>
+</html>
